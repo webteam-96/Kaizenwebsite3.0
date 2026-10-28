@@ -1,0 +1,1401 @@
+/* =====================================================================
+   Kaizen Infotech — Website styles
+   Design system extracted from the Figma "Kaizen Website" service page.
+   Palette, type and components match the source design; layout is made
+   responsive so the fixed 1512px artboard reads as a real website.
+   ===================================================================== */
+
+/* ---------- Design tokens ---------- */
+:root {
+  --navy:        #001f32;   /* dark section bands + footer            */
+  --navy-soft:   #012a44;   /* subtle lift on navy cards              */
+  --blue:        #117abf;   /* primary accent: bullets, buttons, links*/
+  --blue-dark:   #0e6aa6;   /* button hover                           */
+  --blue-light:  #e0f1ff;   /* FAQ rows / soft panels                 */
+  --ink:         #202020;   /* body text on light                     */
+  --ink-85:      rgba(0, 0, 0, 0.85); /* headings                     */
+  --ink-ghost:   rgba(0, 0, 0, 0.1);  /* ghost italic behind titles (Figma 10%) */
+  --gray:        #464646;   /* nav + breadcrumb                       */
+  --line:        #e6e6e6;   /* hairline dividers                      */
+  --white:       #ffffff;
+
+  --container: 1250px;
+  --gutter: 24px;
+  --radius: 12px;
+  --shadow: 2px 2px 5px -2px rgba(0, 0, 0, 0.25);
+  --shadow-lift: 0 14px 30px -18px rgba(0, 0, 0, 0.35);
+
+  --header-h: 88px;
+  --font: "Lato", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.65;
+  color: var(--ink);
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+
+/* ---------- Layout helpers ---------- */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section { padding-block: 84px; }
+.section--tight { padding-block: 56px; }
+
+/* Full-bleed dark bands with constrained content */
+.band-navy {
+  background: var(--navy);
+  color: var(--white);
+}
+.band-navy .section-title,
+.band-navy .lead { color: var(--white); }
+
+/* ---------- Typography ---------- */
+.section-title {
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2rem);   /* ~28–32px */
+  line-height: 1.2;
+  margin: 0 0 28px;
+  color: var(--ink);
+}
+.section-title--center { text-align: center; }
+
+.eyebrow {
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  color: var(--blue);
+  margin: 0 0 14px;
+}
+
+.lead {
+  font-size: 1.2rem;
+  line-height: 1.7;
+  color: var(--ink);
+  margin: 0;
+}
+.lead--justify { text-align: justify; }
+
+.prose p { margin: 0 0 1.1em; }
+.prose p:last-child { margin-bottom: 0; }
+
+/* ---------- Header / navigation ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: saturate(1.1) blur(8px);
+  border-bottom: 1px solid var(--line);
+}
+.nav {
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.nav__logo img { height: 52px; width: auto; }
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: 38px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.nav__links a {
+  font-size: 1.0625rem;
+  color: var(--gray);
+  padding: 6px 2px;
+  position: relative;
+  transition: color 0.18s ease;
+}
+.nav__links a::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -2px;
+  width: 0; height: 2px;
+  background: var(--blue);
+  transition: width 0.22s ease;
+}
+.nav__links a:hover,
+.nav__links a[aria-current="page"] { color: var(--blue); }
+.nav__links a:hover::after,
+.nav__links a[aria-current="page"]::after { width: 100%; }
+
+.nav__toggle {
+  display: none;
+  border: 0;
+  background: transparent;
+  width: 44px; height: 44px;
+  padding: 10px;
+}
+.nav__toggle span {
+  display: block;
+  height: 2px;
+  background: var(--navy);
+  border-radius: 2px;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+}
+.nav__toggle span + span { margin-top: 6px; }
+
+/* ---------- Breadcrumb ---------- */
+.breadcrumb {
+  padding-top: 40px;
+  font-size: 1.05rem;
+  color: var(--gray);
+}
+.breadcrumb .light { font-weight: 300; }
+.breadcrumb .current { font-weight: 700; color: var(--gray); }
+.breadcrumb a { color: inherit; transition: color 0.18s ease; }
+.breadcrumb a:hover { color: var(--blue); }
+
+/* ---------- Page hero (service detail) ---------- */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 460px) 1fr;
+  gap: 48px;
+  align-items: center;
+  padding-block: 64px 72px;
+}
+.hero__art {
+  background: var(--white);
+  display: flex;
+  justify-content: center;
+}
+.hero__art img { width: 100%; max-width: 440px; height: auto; }
+.hero__title {
+  font-weight: 700;
+  font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.1rem);
+  color: var(--ink-85);
+  margin: 0 0 16px;
+  line-height: 1.15;
+}
+.hero__text {
+  font-size: 1.2rem;
+  color: var(--ink);
+  margin: 0;
+  max-width: 640px;
+}
+
+/* Simpler centered hero for non-detail pages */
+.page-hero { text-align: center; padding-block: 72px 48px; }
+.page-hero .hero__title { margin-inline: auto; }
+.page-hero .hero__text { margin-inline: auto; }
+
+/* Main-page hero with a motion graphic (js/hero-motion.js).
+   Same grid as the Figma service hero: art beside the text. A cloud of dots
+   keeps re-forming into the page's elements — pixelated → clear → disperse.
+   Hover holds the current element clear and enlarges it. */
+.hero--motion { padding-block: 48px 64px; }
+.hero--motion .breadcrumb { padding-top: 0; margin: 0 0 18px; }
+.hero--motion .btn-row { justify-content: flex-start; margin-top: 32px; }
+.hero-motion { position: relative; }
+.hero-motion__stage { position: relative; aspect-ratio: 4 / 3; }
+.hero-motion canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform-origin: 50% 50%;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.hero-motion.is-held canvas { transform: scale(1.14); }
+.hero-motion__cap {
+  margin: 6px 0 0;
+  min-height: 3.1em;
+  text-align: center;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.hero-motion__cap strong { display: block; font-size: 1.05rem; color: var(--ink-85); }
+.hero-motion__cap span { display: block; font-size: 0.92rem; color: var(--gray); }
+.hero-motion__cap.is-out { opacity: 0; transform: translateY(4px); }
+@media (max-width: 960px) {
+  .hero--motion .btn-row { justify-content: center; }
+  .hero-motion { max-width: 520px; margin-inline: auto; width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-motion canvas, .hero-motion__cap { transition: none; }
+  .hero-motion.is-held canvas { transform: none; }
+}
+
+/* ---------- Bullet list ("What We Deliver") ---------- */
+.checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 26px;
+}
+.checklist li {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 14px;
+  align-items: start;
+  font-size: 1.15rem;
+}
+.checklist li::before {
+  content: "";
+  width: 10px; height: 10px;
+  margin-top: 0.55em;
+  background: var(--blue);
+  flex: none;
+}
+
+/* ---------- Technologies strip ---------- */
+.tech {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+  flex-wrap: wrap;
+}
+.tech .section-title { margin: 0; white-space: nowrap; }
+.tech__row { display: flex; gap: 22px; flex-wrap: wrap; }
+
+/* ---------- FAQ accordion ---------- */
+.faq { display: grid; gap: 18px; max-width: 1100px; margin-inline: auto; }
+.faq__item {
+  background: var(--blue-light);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.faq__q {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 24px;
+  font-size: 1.1rem;
+  color: var(--ink);
+  font-family: inherit;
+}
+.faq__q .chev {
+  flex: none;
+  width: 16px; height: 16px;
+  border-right: 2px solid var(--navy);
+  border-bottom: 2px solid var(--navy);
+  transform: rotate(45deg);
+  transition: transform 0.25s ease;
+  margin-top: -4px;
+}
+.faq__item.is-open .faq__q .chev { transform: rotate(-135deg); margin-top: 4px; }
+.faq__a {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+.faq__a-inner { padding: 0 24px 20px; color: var(--ink); }
+.faq__item.is-open .faq__a { max-height: 400px; }
+
+/* ---------- Cards ("Explore More" / services / blog) ----------
+   Media on top, body below. An incomplete last row (e.g. 5 services)
+   is centred rather than left hanging.                                  */
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 34px;
+}
+.card-grid > .card { flex: 0 1 calc((100% - 2 * 34px) / 3); min-width: 0; }
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);          /* own text colour — never inherit white from a navy band */
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+/* lift on hover; js/motion.js adds a gentle tilt toward the pointer (--rx/--ry) */
+.card:hover { transform: perspective(900px) translateY(-4px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); box-shadow: var(--shadow-lift); }
+.card:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+/* Media — the pixelated and clear versions share one identical 4:3 frame
+   (generated by build-images.js), so they stack with no shift. */
+.card__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: var(--white);
+  border-bottom: 1px solid var(--line);
+}
+.card__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+}
+
+/* REST — pixelated but visible.  HOVER — clear.
+   Same timing as the icon standard: the clear layer starts first and the
+   dots leave after a short delay, so the image never dips mid-transition. */
+.card__img--dots { opacity: 1; transition: opacity 0.3s ease; }
+.card__img--clear { opacity: 0; transition: opacity 0.3s ease; }
+.card:hover .card__img--dots,
+.card:focus-visible .card__img--dots { opacity: 0; transition-delay: 0.18s; }
+.card:hover .card__img--clear,
+.card:focus-visible .card__img--clear { opacity: 1; }
+
+/* Line-art illustration elements (used in "What We Do" instead of images).
+   Same frame as the card images, same standard as the icons:
+   REST  — dotted strokes (pixelated, like the Figma art)
+   HOVER — thick solid strokes; every stroke draws itself in (pathLength=1). */
+.card__media .illus {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+.illus path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.illus__dots {
+  stroke-width: var(--dot);
+  stroke-dasharray: 0.01px var(--pitch);
+  transition: opacity 0.3s ease;
+}
+.illus__line { stroke-width: var(--thick); opacity: 0; transition: opacity 0.25s ease; }
+.illus__line path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.card:hover .illus__dots,
+.card:focus-visible .illus__dots { opacity: 0; transition-delay: 0.18s; }
+.card:hover .illus__line,
+.card:focus-visible .illus__line { opacity: 1; }
+.card:hover .illus__line path,
+.card:focus-visible .illus__line path { stroke-dashoffset: 0; }
+
+/* Photo thumbnails (Blog — uploaded by the admin). 16:9, the standard blog /
+   social-share ratio. REST: slightly pixelated; HOVER: the clear photo.
+   js/main.js paints .card__pixels (a low-res copy of the photo, scaled up with
+   hard edges) over the image and it fades out on hover. Without JS the photo
+   simply shows clear. Tune the block size with --pixel (CSS px per block). */
+.card__media--photo { aspect-ratio: 16 / 9; overflow: hidden; --pixel: 7; }
+.card__photo,
+.card__pixels {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.card__photo { object-fit: cover; transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.card__pixels {
+  image-rendering: pixelated;
+  transition: opacity 0.45s ease;
+}
+.card:hover .card__pixels,
+.card:focus-visible .card__pixels { opacity: 0; }
+.card:hover .card__photo,
+.card:focus-visible .card__photo { transform: scale(1.03); }
+@media (prefers-reduced-motion: reduce) {
+  .card__photo { transition: none; }
+  .card:hover .card__photo,
+  .card:focus-visible .card__photo { transform: none; }
+}
+
+/* Body */
+.card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 24px 24px;
+  flex: 1;
+}
+/* Title with the Figma "ghost" echo: both share one grid cell so the
+   echo stays aligned however the title wraps. */
+/* Figma "ghost" title: the SAME title in light italic, 32/28 larger, set behind
+   the bold title at the same width so it wraps onto the same lines, raised
+   ~0.33em so it peeks out above each line (Figma: bold 28px over ghost 32px,
+   bold top 10.5px below ghost top). Sizes scaled to our ~10% narrower card. */
+.card__titles {
+  --title-size: 1.55rem;
+  display: grid;
+  justify-items: stretch;
+  align-items: start;
+  text-align: center;
+  padding-top: 12px;
+}
+.card__titles > * { grid-area: 1 / 1; }
+.card__ghost {
+  font-style: italic;
+  font-weight: 400;
+  font-size: calc(var(--title-size) * 32 / 28);
+  line-height: 1.2;
+  color: var(--ink-ghost);
+  transform: translateY(-0.33em);
+  pointer-events: none;
+  user-select: none;
+}
+.card__title {
+  margin: 0;
+  font-weight: 700;
+  font-size: var(--title-size);
+  line-height: 1.2;
+  color: var(--ink-85);
+}
+.card__desc { font-size: 1rem; color: var(--ink); margin: 0; text-align: left; }
+
+/* Blog post variant: tag + left-aligned title, no ghost/bullets */
+.card--post .card__body { gap: 10px; }
+.card--post .tag { align-self: flex-start; }
+.card--post .card__title { font-size: 1.2rem; text-align: left; }
+.card__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.card__list li {
+  display: grid;
+  grid-template-columns: 5px 1fr;
+  gap: 10px;
+  align-items: start;
+  font-size: 0.98rem;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+.card__list li::before {
+  content: "";
+  width: 4px; height: 4px;
+  margin-top: 0.6em;
+  background: var(--blue);
+}
+.card__more {
+  margin-top: auto;
+  align-self: flex-end;
+  font-style: italic;
+  font-weight: 700;
+  color: var(--blue);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.card__more::after { content: "›"; font-size: 1.2em; font-style: normal; }
+
+@media (prefers-reduced-motion: reduce) {
+  .card { transition: box-shadow 0.2s ease; }
+  .card:hover { transform: none; }
+  .card__img--dots,
+  .card__img--clear,
+  .card:hover .card__img--dots,
+  .card:focus-visible .card__img--dots,
+  .illus__dots,
+  .illus__line,
+  .card:hover .illus__dots,
+  .card:focus-visible .illus__dots { transition: opacity 0.15s ease; transition-delay: 0s; }
+  .illus__line path { transition: none; stroke-dashoffset: 0; }
+}
+
+/* ---------- Buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 150px;
+  height: 52px;
+  padding: 0 22px;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  border: 1px solid transparent;
+  transition: background 0.18s ease, color 0.18s ease, transform 0.15s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn--primary { background: var(--blue); color: var(--white); }
+.btn--primary:hover { background: var(--blue-dark); }
+.btn--ghost { background: var(--white); color: var(--ink); border-color: #000; }
+.btn--ghost:hover { background: #f4f8fb; }
+
+.btn-row { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+
+/* ---------- CTA block ---------- */
+.cta { text-align: center; }
+.cta__title {
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(1.6rem, 1.2rem + 1.4vw, 2rem);
+  margin: 0 0 22px;
+}
+.cta__text {
+  font-size: 1.3rem;
+  color: var(--ink);
+  max-width: 700px;
+  margin: 0 auto 32px;
+}
+
+/* ---------- Footer ---------- */
+.footer { background: var(--navy); color: var(--white); padding-block: 70px 40px; }
+.footer__grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1.3fr 1fr 1.4fr;
+  gap: 36px;
+}
+.footer__logo {
+  background: var(--white);
+  border-radius: var(--radius);
+  padding: 22px;
+  display: grid;
+  place-items: center;
+  align-self: start;
+}
+.footer__logo img { width: 100%; max-width: 240px; }
+.footer__col h4 {
+  font-weight: 900;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  margin: 6px 0 16px;
+}
+.footer__col ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.footer__col a, .footer__col li { font-weight: 300; color: rgba(255,255,255,0.9); }
+.footer__col a:hover { color: var(--white); text-decoration: underline; }
+.footer__bottom {
+  margin-top: 44px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* ---------- Contact form ---------- */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.field { display: grid; gap: 8px; margin-bottom: 20px; }
+.field label { font-size: 0.95rem; font-weight: 700; color: var(--gray); }
+.field input,
+.field textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 12px 14px;
+  border: 1px solid #cdd6dd;
+  border-radius: 8px;
+  background: #fbfdfe;
+  color: var(--ink);
+}
+.field input:focus,
+.field textarea:focus { outline: 2px solid var(--blue); border-color: var(--blue); }
+.info-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 22px; }
+.info-list li { display: flex; align-items: center; gap: 16px; }
+.info-list li > div:last-child { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.info-list .k { font-weight: 900; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.8rem; color: var(--blue); }
+
+/* ---------- Meta rows (blog / careers / work) ---------- */
+.list-stack { display: grid; gap: 22px; }
+.row-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 26px 28px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.row-card:hover { box-shadow: var(--shadow-lift); transform: translateY(-2px); }
+.row-card__main { display: flex; align-items: center; gap: 18px; min-width: 0; }
+.row-card h3 { margin: 0 0 6px; font-size: 1.25rem; color: var(--ink-85); }
+.row-card p { margin: 0; color: var(--gray); font-size: 1rem; }
+.tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--blue-dark);    /* 5.0:1 on light-blue — passes WCAG AA for small text */
+  background: var(--blue-light);
+  padding: 5px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* =====================================================================
+   Pixel → line icon component  (the single standard for every icon)
+
+   Each icon is one set of line-art geometry rendered twice via <use>:
+   • .picon__dots — REST state. A round-capped stroke broken into dense,
+     evenly spaced dots, so the line icon reads as pixelated but stays
+     clearly legible (matches the dotted Figma illustrations).
+   • .picon__line — HOVER state. The same geometry as one clean, solid
+     stroke that draws itself in.
+
+   Timing is overlapped on purpose: the line starts drawing before the
+   dots fade, so the icon never blinks out mid-transition. Colour
+   follows `currentColor`, so one icon works blue on light and on navy.
+   ===================================================================== */
+.picon-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.picon {
+  --picon-size: 44px;
+  display: inline-block;
+  width: var(--picon-size);
+  height: var(--picon-size);
+  color: var(--blue);
+  line-height: 0;
+  flex: none;
+}
+.picon svg { width: 100%; height: 100%; overflow: visible; }
+.picon use { fill: none; stroke: currentColor; stroke-linejoin: round; }
+
+/* REST — pixelated but visible: dots ~3px wide on a ~4.6px pitch */
+.picon__dots {
+  stroke-width: 3.1;
+  stroke-linecap: round;
+  stroke-dasharray: 0.01 4.6;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+/* HOVER — clear line, drawn in */
+.picon__line {
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-dasharray: 260;
+  stroke-dashoffset: 260;
+  opacity: 0;
+  transition: opacity 0.25s ease, stroke-dashoffset 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Hover target: the icon itself, or any host that contains one */
+.picon:hover .picon__dots,
+.card:hover .picon__dots,
+.tech__tile:hover .picon__dots,
+.feature:hover .picon__dots,
+.row-card:hover .picon__dots,
+.info-list li:hover .picon__dots {
+  opacity: 0;
+  transition-delay: 0.18s;           /* let the line begin drawing first */
+}
+.picon:hover .picon__line,
+.card:hover .picon__line,
+.tech__tile:hover .picon__line,
+.feature:hover .picon__line,
+.row-card:hover .picon__line,
+.info-list li:hover .picon__line { opacity: 1; stroke-dashoffset: 0; }
+
+/* Keyboard users get the same clear state */
+.card:focus-visible .picon__dots,
+.row-card:focus-visible .picon__dots { opacity: 0; }
+.card:focus-visible .picon__line,
+.row-card:focus-visible .picon__line { opacity: 1; stroke-dashoffset: 0; }
+
+/* Icon elements (illustrations/icons/*.js): multi-colour, same rest-dots /
+   hover-lines standard as the card elements, triggered by the same hosts. */
+.picon--el .illus { width: 100%; height: 100%; display: block; overflow: visible; }
+.picon:hover .illus__dots,
+.tech__tile:hover .illus__dots,
+.feature:hover .illus__dots,
+.row-card:hover .illus__dots,
+.row-card:focus-visible .illus__dots,
+.info-list li:hover .illus__dots { opacity: 0; transition-delay: 0.18s; }
+.picon:hover .illus__line,
+.tech__tile:hover .illus__line,
+.feature:hover .illus__line,
+.row-card:hover .illus__line,
+.row-card:focus-visible .illus__line,
+.info-list li:hover .illus__line { opacity: 1; }
+.picon:hover .illus__line path,
+.tech__tile:hover .illus__line path,
+.feature:hover .illus__line path,
+.row-card:hover .illus__line path,
+.row-card:focus-visible .illus__line path,
+.info-list li:hover .illus__line path { stroke-dashoffset: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .picon__line { transition: opacity 0.2s ease; stroke-dashoffset: 0; }
+  .picon__dots { transition: opacity 0.2s ease; }
+}
+
+/* ---------- Technologies strip (icon tiles) ---------- */
+.tech__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 108px;
+  text-align: center;
+}
+.tech__disc {
+  width: 86px; height: 86px;
+  border-radius: 50%;
+  background: var(--white);
+  display: grid;
+  place-items: center;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.tech__tile:hover .tech__disc { transform: translateY(-5px); box-shadow: var(--shadow-lift); }
+.tech__disc .picon { --picon-size: 50px; }
+.tech__label { font-size: 0.95rem; color: rgba(255, 255, 255, 0.85); }
+
+/* ---------- Feature grid (icon-led variation) ---------- */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 34px 40px;
+}
+.feature { display: grid; gap: 12px; }
+
+/* One shared icon-tile look: feature grid, row cards, contact details */
+.feature__ic,
+.row-card__ic,
+.info-ic {
+  width: 74px; height: 74px;
+  border-radius: 16px;
+  background: var(--blue-light);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.feature__ic .picon { --picon-size: 50px; }
+.row-card__ic,
+.info-ic { width: 60px; height: 60px; border-radius: 14px; }
+.row-card__ic .picon,
+.info-ic .picon { --picon-size: 40px; }
+.feature h3 { margin: 6px 0 2px; font-size: 1.2rem; font-weight: 700; color: var(--ink-85); }
+.feature p { margin: 0; color: var(--gray); font-size: 1rem; }
+
+.band-navy .feature__ic { background: var(--navy-soft); }
+.band-navy .feature h3 { color: var(--white); }
+.band-navy .feature p { color: rgba(255, 255, 255, 0.8); }
+.band-navy .feature__ic .picon { color: #7fc4ec; }
+
+/* ---------- Utilities ---------- */
+.center { text-align: center; }
+.mt-0 { margin-top: 0; }
+.stack-40 { display: grid; gap: 40px; }
+.narrow { max-width: 820px; margin-inline: auto; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 960px) {
+  .footer__grid { grid-template-columns: 1fr 1fr; }
+  .footer__logo { grid-column: 1 / -1; justify-self: start; max-width: 320px; }
+  .card-grid > .card { flex-basis: calc((100% - 34px) / 2); }
+  .feature-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero { grid-template-columns: 1fr; text-align: center; gap: 28px; }
+  .hero__art img { margin-inline: auto; }
+  .hero__text { margin-inline: auto; }
+  .contact-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px) {
+  body { font-size: 17px; }
+  .section { padding-block: 60px; }
+  .nav__toggle { display: block; }
+  .nav__links {
+    position: absolute;
+    top: var(--header-h);
+    left: 0; right: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    padding: 8px 24px 20px;
+    box-shadow: var(--shadow-lift);
+    display: none;
+  }
+  .nav__links.is-open { display: flex; }
+  .nav__links li { width: 100%; }
+  .nav__links a { display: block; width: 100%; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .nav__links a::after { display: none; }
+  .card-grid > .card { flex-basis: 100%; max-width: 520px; }
+  .feature-grid { grid-template-columns: 1fr; }
+  .tech { justify-content: center; text-align: center; }
+  .row-card { flex-direction: column; align-items: flex-start; }
+}
+
+@media (max-width: 420px) {
+  .footer__grid { grid-template-columns: 1fr; }
+  .btn { width: 100%; }
+}
+
+/* ---------- Home: stats band ----------
+   Four figures side by side on the navy band (as in the reference
+   screenshot): big light number, short red underline, label; thin dividers. */
+.stats { padding-block: 56px; }
+.stats__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--n, 4), 1fr) /* one column per figure */;
+}
+.stats__item {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 12px;
+  padding: 8px 20px;
+  text-align: center;
+}
+.stats__item + .stats__item { border-left: 1px solid rgba(255, 255, 255, 0.14); }
+.stats__num {
+  font-size: clamp(2.8rem, 2rem + 2.4vw, 4rem);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--white);
+  font-variant-numeric: tabular-nums;
+}
+.stats__num::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 4px;
+  margin: 18px auto 0;
+  border-radius: 2px;
+  background: #d70213;
+}
+.stats__label { font-size: 1.1rem; font-weight: 300; color: rgba(255, 255, 255, 0.82); }
+@media (max-width: 760px) {
+  .stats__list { grid-template-columns: repeat(2, 1fr); row-gap: 36px; }
+  .stats__item:nth-child(3) { border-left: 0; }
+}
+
+/* ---------- Section "more" button (centred under a grid / list) ---------- */
+.section-more { margin-top: 44px; }
+
+/* ---------- Home: How We Work (numbered process steps) ---------- */
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 28px;
+  position: relative;
+}
+.steps::before { /* the line that joins the steps */
+  content: "";
+  position: absolute;
+  top: 37px;
+  left: 10%;
+  right: 10%;
+  border-top: 2px dashed rgba(17, 122, 191, 0.35);
+}
+.step { position: relative; display: grid; justify-items: center; gap: 8px; text-align: center; }
+.step__ic {
+  width: 74px; height: 74px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 0 0 6px var(--white), 0 0 0 7px var(--blue-light);
+  display: grid;
+  place-items: center;
+}
+.step__ic .picon { --picon-size: 48px; }
+.step__num { margin-top: 10px; font-weight: 900; font-size: 0.85rem; letter-spacing: 0.12em; color: var(--blue); }
+.step h3 { margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--ink-85); }
+.step p { margin: 0; color: var(--gray); font-size: 0.98rem; }
+.step:hover .picon__dots, .step:hover .illus__dots { opacity: 0; transition-delay: 0.18s; }
+.step:hover .picon__line, .step:hover .illus__line { opacity: 1; stroke-dashoffset: 0; }
+.step:hover .illus__line path { stroke-dashoffset: 0; }
+@media (max-width: 960px) {
+  .steps { grid-template-columns: repeat(2, 1fr); }
+  .steps::before { display: none; }
+}
+@media (max-width: 760px) {
+  .steps { grid-template-columns: 1fr; }
+}
+
+/* =====================================================================
+   Scroll animations + micro-interactions (js/motion.js)
+   ===================================================================== */
+
+/* ---------- Scroll reveal ----------
+   js/motion.js tags containers with data-reveal="<variant>" and adds .is-in
+   when they enter the viewport. Uses `translate`/`opacity`/`scale` (not
+   `transform`), so hover lifts and tilts keep working. Nothing is hidden
+   without JS, and prefers-reduced-motion skips it entirely. */
+.has-reveal [data-reveal] { opacity: 0; } /* hidden instantly — no fade-out flash */
+.has-reveal [data-reveal="up"] { translate: 0 22px; }
+.has-reveal [data-reveal="rise"] { translate: 0 34px; scale: 0.97; }
+.has-reveal [data-reveal="left"] { translate: -28px 0; }
+.has-reveal [data-reveal="pop"] { scale: 0.85; }
+.has-reveal [data-reveal="zoom"] { scale: 0.92; }
+.has-reveal [data-reveal].is-in {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+  transition:
+    opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms),
+    translate 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms),
+    scale 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms);
+}
+
+/* ---------- Scroll progress bar ---------- */
+.scroll-progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  z-index: 60;
+  background: linear-gradient(90deg, var(--blue), #d70213);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  pointer-events: none;
+}
+
+/* ---------- Header: soft shadow once the page scrolls ---------- */
+.site-header { transition: box-shadow 0.3s ease, background-color 0.3s ease; }
+.site-header.is-scrolled { box-shadow: 0 8px 24px -16px rgba(0, 31, 50, 0.45); background: rgba(255, 255, 255, 0.97); }
+.nav__logo img { transition: transform 0.3s ease; }
+.nav__logo:hover img { transform: scale(1.04); }
+
+/* ---------- Back to top (with scroll progress ring) ---------- */
+.to-top {
+  position: fixed;
+  right: 22px; bottom: 22px;
+  z-index: 55;
+  width: 48px; height: 48px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: 0 10px 24px -12px rgba(0, 31, 50, 0.55);
+  opacity: 0;
+  translate: 0 14px;
+  pointer-events: none;
+  transition: opacity 0.3s ease, translate 0.3s ease, box-shadow 0.2s ease;
+}
+.to-top.is-shown { opacity: 1; translate: 0 0; pointer-events: auto; }
+.to-top:hover { box-shadow: 0 14px 28px -12px rgba(0, 31, 50, 0.6); translate: 0 -2px; }
+.to-top svg { width: 100%; height: 100%; display: block; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.to-top__track { stroke: var(--blue-light); stroke-width: 2.5; }
+.to-top__ring {
+  stroke: var(--blue);
+  stroke-width: 2.5;
+  stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--p, 0));
+  transform: rotate(-90deg);
+  transform-origin: 22px 22px;
+}
+.to-top path { stroke: var(--navy); stroke-width: 2.6; transition: translate 0.2s ease; }
+.to-top:hover path { translate: 0 -2px; }
+.to-top:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+/* ---------- Buttons: ripple + press ---------- */
+.btn { position: relative; overflow: hidden; isolation: isolate; }
+.btn:hover { translate: 0 -1px; }
+.btn--primary:hover { box-shadow: 0 10px 20px -12px rgba(17, 122, 191, 0.9); }
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.25;
+  scale: 0;
+  pointer-events: none;
+  z-index: -1;
+  animation: ripple 0.6s ease-out forwards;
+}
+@keyframes ripple { to { scale: 1; opacity: 0; } }
+
+/* ---------- Cards: arrow nudge ---------- */
+.card__more::after { transition: translate 0.25s ease; display: inline-block; }
+.card:hover .card__more::after { translate: 4px 0; }
+.card:hover .card__title { color: var(--blue); }
+.card__title { transition: color 0.25s ease; }
+
+/* ---------- Rows (Work / Careers): shift + arrow ---------- */
+.row-card { position: relative; }
+.row-card::after {
+  content: "›";
+  position: absolute;
+  right: 14px; top: 50%;
+  translate: -6px -50%;
+  font-size: 1.6rem;
+  color: var(--blue);
+  opacity: 0;
+  transition: opacity 0.25s ease, translate 0.25s ease;
+}
+.row-card:hover::after { opacity: 1; translate: 0 -50%; }
+.row-card:hover .tag { margin-right: 18px; }
+.row-card .tag { transition: margin 0.25s ease, background-color 0.25s ease; }
+
+/* ---------- Tags, feature tiles, steps ---------- */
+.tag { transition: background-color 0.2s ease, color 0.2s ease; }
+a:hover .tag, .tag:hover { background: #cfe8fb; }
+.feature__ic, .step__ic, .tech__disc { transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.3s ease; }
+.feature:hover .feature__ic { transform: translateY(-4px) rotate(-3deg); box-shadow: 0 12px 22px -14px rgba(17, 122, 191, 0.7); }
+.step:hover .step__ic { transform: scale(1.08); }
+
+/* ---------- FAQ: hover tint ---------- */
+.faq__q { transition: background-color 0.2s ease; }
+.faq__q:hover { background: rgba(17, 122, 191, 0.07); }
+
+/* ---------- Forms: focus lift + invalid shake ---------- */
+.field input, .field textarea { transition: border-color 0.2s ease, box-shadow 0.2s ease, translate 0.2s ease, background-color 0.2s ease; }
+.field input:focus, .field textarea:focus { translate: 0 -1px; box-shadow: 0 8px 18px -14px rgba(17, 122, 191, 0.8); background: var(--white); }
+.field:focus-within label { color: var(--blue); }
+.field label { transition: color 0.2s ease; }
+.is-shake { animation: shake 0.42s ease; }
+@keyframes shake { 20%, 60% { translate: -6px 0; } 40%, 80% { translate: 6px 0; } }
+
+/* ---------- Footer + breadcrumb links ---------- */
+.footer__col a { display: inline-block; transition: translate 0.2s ease, color 0.2s ease; }
+.footer__col a:hover { translate: 3px 0; text-decoration: none; }
+
+/* ---------- Hero parallax (set by js/motion.js) ---------- */
+.hero-motion__stage { translate: 0 var(--parallax, 0px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-progress, .to-top, .btn, .card__more::after, .row-card::after, .feature__ic, .step__ic, .footer__col a, .field input, .field textarea { transition: none; }
+  .hero-motion__stage { translate: none; }
+}
+
+/* ---------- Compact card (home "What We Do"): element + heading only ---------- */
+.card--compact .card__body { padding: 20px 22px 26px; justify-content: center; }
+.card--compact .card__titles { padding-top: 14px; }
+
+/* =====================================================================
+   Home "Our Work" showcase — big photo cards on the navy band
+   REST: photo pixelated (js/main.js paints .card__pixels) · HOVER / TAP:
+   clear + slight zoom, text lifts, arrow slides. Scroll: each card wipes
+   open while its photo settles; photos drift with a light parallax.
+   ===================================================================== */
+.work-showcase { padding-block: 96px; }
+.work-showcase .section-title { margin: 0; }
+.work-showcase .eyebrow { color: #7fc4ec; }
+.work-showcase__head {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: end;
+  gap: 24px 48px;
+  margin-bottom: 40px;
+}
+.work-showcase__intro { margin: 0; max-width: 460px; justify-self: end; color: rgba(255, 255, 255, 0.78); font-size: 1.02rem; }
+.work-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  grid-template-rows: repeat(2, minmax(270px, 1fr));
+  gap: 24px;
+}
+.work-card {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-radius: 18px;
+  min-height: 270px;
+  isolation: isolate;
+  color: var(--white);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 48px -28px rgba(0, 0, 0, 0.8);
+  transition: box-shadow 0.4s ease, translate 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.work-card--lead { grid-row: span 2; min-height: 564px; }
+.work-card__frame { /* taller than the card: room for the parallax drift */
+  position: absolute;
+  inset: -8% 0;
+  z-index: -2;
+  --pixel: 9;
+  translate: 0 var(--py, 0px);
+  transition: scale 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.work-card .card__photo { transition: transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.work-card .card__pixels { transition: opacity 0.55s ease; }
+.work-card__shade {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(to top, rgba(0, 31, 50, 0.94) 0%, rgba(0, 31, 50, 0.62) 38%, rgba(0, 31, 50, 0.08) 72%, rgba(0, 31, 50, 0) 100%);
+  transition: opacity 0.5s ease;
+}
+.work-card__body {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 28px 30px 30px;
+  display: grid;
+  gap: 8px;
+  translate: 0 12px;
+  transition: translate 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.work-card__meta { display: flex; align-items: center; gap: 12px; }
+.work-card__num { font-weight: 300; font-size: 0.95rem; letter-spacing: 0.18em; color: rgba(255, 255, 255, 0.7); }
+.tag--glass { color: var(--white); background: rgba(255, 255, 255, 0.16); backdrop-filter: blur(6px); }
+.work-card__title { margin: 4px 0 0; font-size: 1.6rem; font-weight: 700; line-height: 1.15; }
+.work-card--lead .work-card__title { font-size: clamp(1.8rem, 1.3rem + 1.4vw, 2.4rem); }
+.work-card__text {
+  margin: 0;
+  max-width: 460px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.98rem;
+  opacity: 0;
+  max-height: 0;
+  transition: opacity 0.4s ease, max-height 0.5s ease;
+}
+.work-card--lead .work-card__text { opacity: 1; max-height: 6em; }
+.work-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-weight: 700;
+  font-style: italic;
+  color: #7fc4ec;
+}
+.work-card__cta span { display: inline-block; transition: translate 0.35s ease; }
+
+/* hover (mouse) and tap (.is-clear, touch) */
+.work-card:hover,
+.work-card:focus-visible,
+.work-card.is-clear { translate: 0 -6px; box-shadow: 0 0 0 1px rgba(127, 196, 236, 0.45), 0 34px 60px -30px rgba(0, 0, 0, 0.9); }
+.work-card:hover .card__pixels,
+.work-card:focus-visible .card__pixels,
+.work-card.is-clear .card__pixels { opacity: 0; }
+.work-card:hover .card__photo,
+.work-card:focus-visible .card__photo,
+.work-card.is-clear .card__photo { transform: scale(1.05); }
+.work-card:hover .work-card__body,
+.work-card:focus-visible .work-card__body,
+.work-card.is-clear .work-card__body { translate: 0 0; }
+.work-card:hover .work-card__text,
+.work-card:focus-visible .work-card__text,
+.work-card.is-clear .work-card__text { opacity: 1; max-height: 6em; }
+.work-card:hover .work-card__cta span,
+.work-card:focus-visible .work-card__cta span,
+.work-card.is-clear .work-card__cta span { translate: 6px 0; }
+.work-card:focus-visible { outline: 3px solid #7fc4ec; outline-offset: 4px; }
+
+/* scroll reveal variant: wipe open from the bottom, photo settles */
+/* The card itself is never clipped (that would give it zero visible area and
+   the reveal observer would never see it) — its layers are clipped instead. */
+.has-reveal [data-reveal="wipe"] > * { clip-path: inset(100% 0 0 0); }
+.has-reveal [data-reveal="wipe"] .work-card__frame,
+.has-reveal [data-reveal="wipe"] .case__frame { scale: 1.18; }
+.has-reveal [data-reveal="wipe"].is-in { transition: opacity 0.6s ease var(--reveal-delay, 0ms); }
+.has-reveal [data-reveal="wipe"].is-in > * {
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 1s cubic-bezier(0.7, 0, 0.2, 1) var(--reveal-delay, 0ms);
+}
+.has-reveal [data-reveal="wipe"].is-in .work-card__frame,
+.has-reveal [data-reveal="wipe"].is-in .case__frame {
+  scale: 1;
+  transition: clip-path 1s cubic-bezier(0.7, 0, 0.2, 1) var(--reveal-delay, 0ms), scale 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms);
+}
+
+@media (max-width: 960px) {
+  .work-showcase__head { grid-template-columns: 1fr; align-items: start; }
+  .work-showcase__intro { justify-self: start; }
+  .work-grid { grid-template-columns: 1fr; grid-template-rows: none; }
+  .work-card--lead { grid-row: auto; min-height: 420px; }
+  .work-card { min-height: 320px; }
+  .work-card__text { opacity: 1; max-height: 6em; } /* no hover on most small screens */
+}
+@media (prefers-reduced-motion: reduce) {
+  .work-card, .work-card__frame, .work-card .card__photo, .work-card__body, .work-card__text, .work-card__cta span { transition: none; }
+  .work-card__frame { translate: none; }
+}
+
+/* How We Work on the navy band */
+.band-navy .steps::before { border-top-color: rgba(127, 196, 236, 0.4); }
+.band-navy .step__ic { box-shadow: 0 0 0 6px var(--navy), 0 0 0 7px rgba(127, 196, 236, 0.45); }
+.band-navy .step__num { color: #7fc4ec; }
+.band-navy .step h3 { color: var(--white); }
+.band-navy .step p { color: rgba(255, 255, 255, 0.78); }
+
+/* ---------- Stats band: animation + micro-interactions ----------
+   Scroll in: items rise (motion.js), numbers count up and the red underline
+   draws in from the centre once each count finishes (.is-counted).
+   Per item: a spotlight follows the cursor (--mx/--my), the item lifts, the
+   number glows, the underline widens, the label brightens; click / tap
+   replays the count. */
+.stats__item {
+  position: relative;
+  border-radius: 16px;
+  cursor: default;
+  transition: translate 0.35s cubic-bezier(0.2, 0.7, 0.2, 1), background-color 0.35s ease;
+}
+.stats__item::before { /* cursor spotlight */
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%), rgba(127, 196, 236, 0.16), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.stats__item:hover { translate: 0 -6px; }
+.stats__item:hover::before { opacity: 1; }
+.stats__num { transition: text-shadow 0.35s ease, color 0.35s ease; }
+.stats__item:hover .stats__num { text-shadow: 0 0 22px rgba(127, 196, 236, 0.55); }
+.stats__num::after { transition: width 0.35s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.stats__num.is-counting::after { transform: scaleX(0); } /* hidden only while counting */
+.stats__item:hover .stats__num::after { width: 92px; }
+.stats__label { transition: color 0.35s ease; }
+.stats__item:hover .stats__label { color: var(--white); }
+.stats__item.is-replay .stats__num { animation: stats-pop 0.35s ease; }
+@keyframes stats-pop { 50% { scale: 1.06; } }
+@media (prefers-reduced-motion: reduce) {
+  .stats__item, .stats__item::before, .stats__num, .stats__num::after, .stats__label { transition: none; }
+  .stats__item:hover { translate: none; }
+  .stats__item.is-replay .stats__num { animation: none; }
+}
+
+/* =====================================================================
+   Work page — editorial case studies
+   Big photo (pixelated at rest, clear on hover / tap) beside a details
+   panel; rows alternate sides. Scroll: photo wipes open + settles, the
+   panel's lines rise in sequence, photos drift (parallax). Tiny touches:
+   a "View" badge follows the cursor, the number underline grows, chips
+   lift, the arrow slides, the title tints.
+   ===================================================================== */
+.cases .container { display: grid; gap: clamp(64px, 8vw, 112px); }
+.case {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  align-items: center;
+  gap: clamp(32px, 5vw, 72px);
+}
+.case--flip { grid-template-columns: 1fr 1.15fr; } /* mirror the columns so every photo is the same size */
+.case--flip .case__media { order: 2; }
+.case__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: 20px;
+  overflow: hidden;
+  isolation: isolate;
+  box-shadow: 0 30px 60px -36px rgba(0, 31, 50, 0.55), 0 0 0 1px rgba(0, 31, 50, 0.06);
+  transition: box-shadow 0.45s ease, translate 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.case__frame {
+  position: absolute;
+  inset: -8% 0;
+  z-index: -1;
+  --pixel: 9;
+  translate: 0 var(--py, 0px);
+  transition: scale 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.case .card__photo { transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.case .card__pixels { transition: opacity 0.55s ease; }
+.case__view { /* follows the cursor over the photo */
+  position: absolute;
+  left: 0; top: 0;
+  width: 78px; height: 78px;
+  margin: -39px 0 0 -39px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--navy);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 10px 24px -10px rgba(0, 31, 50, 0.6);
+  translate: var(--vx, 50%) var(--vy, 50%);
+  scale: 0;
+  pointer-events: none;
+  transition: scale 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.case__body { display: grid; gap: 16px; justify-items: start; }
+.case__meta { display: flex; align-items: center; gap: 16px; }
+.case__num {
+  position: relative;
+  font-size: clamp(2.6rem, 2rem + 2vw, 3.6rem);
+  font-weight: 300;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1.2px var(--blue);
+}
+.case__num::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -8px;
+  width: 28px; height: 3px;
+  border-radius: 2px;
+  background: #d70213;
+  transition: width 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.case__title {
+  margin: 4px 0 0;
+  font-size: clamp(1.7rem, 1.3rem + 1.2vw, 2.3rem);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--ink-85);
+  transition: color 0.3s ease;
+}
+.case__text { margin: 0; max-width: 520px; color: var(--gray); font-size: 1.04rem; }
+.case__chips { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.case__chips li {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--navy);
+  background: #f2f7fb;
+  box-shadow: inset 0 0 0 1px rgba(17, 122, 191, 0.14);
+  transition: translate 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease, color 0.25s ease;
+}
+.case__chips li:hover { translate: 0 -2px; background: var(--blue-light); color: var(--blue-dark); box-shadow: inset 0 0 0 1px rgba(17, 122, 191, 0.35); }
+.case__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  padding: 12px 0;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--blue);
+  border-bottom: 2px solid rgba(17, 122, 191, 0.25);
+  transition: border-color 0.3s ease, gap 0.3s ease;
+}
+.case__cta span { display: inline-block; transition: translate 0.3s ease; }
+.case__cta:hover { border-bottom-color: var(--blue); }
+.case__cta:hover span { translate: 6px 0; }
+
+/* the whole row reacts when either half is hovered */
+.case:hover .case__media,
+.case.is-clear .case__media { translate: 0 -6px; box-shadow: 0 40px 70px -36px rgba(0, 31, 50, 0.65), 0 0 0 1px rgba(17, 122, 191, 0.25); }
+.case:hover .card__pixels,
+.case:focus-within .card__pixels,
+.case.is-clear .card__pixels { opacity: 0; }
+.case:hover .card__photo,
+.case.is-clear .card__photo { transform: scale(1.05); }
+.case__media:hover .case__view { scale: 1; }
+.case:hover .case__num::after { width: 64px; }
+.case:hover .case__title { color: var(--blue); }
+.case__media:focus-visible { outline: 3px solid var(--blue); outline-offset: 4px; }
+
+@media (max-width: 860px) {
+  .case, .case--flip { grid-template-columns: 1fr; gap: 28px; }
+  .case--flip .case__media { order: 0; }
+  .case__view { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .case__media, .case__frame, .case .card__photo, .case__view, .case__num::after, .case__title, .case__chips li, .case__cta span { transition: none; }
+  .case__frame { translate: none; }
+}
