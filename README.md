@@ -322,3 +322,27 @@ every page.
   service at it in `build.js`, and run `node build-images.js`.
 - Body type is 18px (the Figma's 24px was sized for a 1512px artboard);
   everything else matches the design.
+
+## Content and SEO (content.js)
+
+All page copy comes from **"Kaizen Website Full Content.docx"** and lives in
+`content.js` (plain text: `build.js` escapes it). Edit words there, then run
+`node build.js`.
+
+- **Pages:** Home, About, Products, Services, Work, Blog, Careers and Contact,
+  plus 5 product pages (`organisation-management-system.html`,
+  `restaurant-chain-management-software.html`, `agent-bandhu.html`,
+  `kaizen-events.html`, `automated-fare-collection.html`) and the 5 service
+  pages. Product elements: `illustrations/oms.js`, `restaurant.js`, `transit.js`
+  (Agent Bandhu uses `marketing`, Kaizen Events uses `event`).
+- **Every page `<head>`:** the document's meta title and description,
+  canonical URL (`SITE.url` + file), robots, Open Graph and Twitter cards, and
+  JSON-LD: Organization + WebSite (home), FAQPage (home, about, services,
+  products), SoftwareApplication (products), Service (services), JobPosting
+  (careers), ContactPage + LocalBusiness (contact), and BreadcrumbList.
+- **Also written:** `sitemap.xml` and `robots.txt`.
+- **Still placeholder:** Work case studies, Blog posts, About team names, and
+  `og:image` (uses the logo; add a 1200×630 share image for richer previews).
+- **Clean URLs:** the document lists URLs like `/products/agent-bandhu`; the
+  static files are flat `.html` pages. To serve clean URLs, add rewrites on the
+  host and change `pageUrl()` in build.js so canonicals match.

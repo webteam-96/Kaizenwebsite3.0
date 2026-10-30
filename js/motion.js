@@ -22,6 +22,7 @@
     [".breadcrumb, .eyebrow, .hero__title, .hero__text, .hero .btn-row, .page-hero .btn-row", "up", false],
     [".section-title, .cta__title, .cta__text, .cta .btn-row, .section-more", "up", false],
     [".lead, .prose", "up", false],
+    [".clients li", "pop", true],
     [".stats__item", "up", true],
     [".work-showcase__intro, .work-showcase__all", "up", false],
     [".work-card", "wipe", true],
@@ -144,18 +145,6 @@
     });
   }
 
-  /* ---------- Our Work on touch: first tap clears the photo, second opens ---------- */
-  var tappedCard = null;
-  document.querySelectorAll(".work-card").forEach(function (card) {
-    card.addEventListener("pointerdown", function (e) { tappedCard = e.pointerType === "touch" ? card : null; });
-    card.addEventListener("click", function (e) {
-      if (tappedCard !== card || card.classList.contains("is-clear")) return;
-      e.preventDefault();
-      document.querySelectorAll(".work-card.is-clear").forEach(function (c) { c.classList.remove("is-clear"); });
-      card.classList.add("is-clear");
-    });
-  });
-
   /* ---------- Work page case studies ---------- */
   document.querySelectorAll(".case").forEach(function (row) {
     var media = row.querySelector(".case__media");
@@ -165,15 +154,6 @@
       var r = media.getBoundingClientRect();
       media.style.setProperty("--vx", (e.clientX - r.left) + "px");
       media.style.setProperty("--vy", (e.clientY - r.top) + "px");
-    });
-    // touch: first tap on the photo clears it, the second opens the case study
-    var touch = false;
-    media.addEventListener("pointerdown", function (e) { touch = e.pointerType === "touch"; });
-    media.addEventListener("click", function (e) {
-      if (!touch || row.classList.contains("is-clear")) return;
-      e.preventDefault();
-      document.querySelectorAll(".case.is-clear").forEach(function (c) { c.classList.remove("is-clear"); });
-      row.classList.add("is-clear");
     });
   });
 

@@ -1399,3 +1399,107 @@ a:hover .tag, .tag:hover { background: #cfe8fb; }
   .case__media, .case__frame, .case .card__photo, .case__view, .case__num::after, .case__title, .case__chips li, .case__cta span { transition: none; }
   .case__frame { translate: none; }
 }
+
+/* =====================================================================
+   Content revamp (content.js) — small additions to existing components
+   ===================================================================== */
+/* Section intro paragraph under a section title */
+.section-intro { margin: -8px 0 40px; max-width: 860px; color: var(--gray); font-size: 1.1rem; }
+.section-intro--center { margin-inline: auto; text-align: center; }
+.band-navy .section-intro { color: rgba(255, 255, 255, 0.8); }
+.band-navy .eyebrow { color: #7fc4ec; }
+
+/* Feature grid with four items: two columns */
+.feature-grid--2 { grid-template-columns: repeat(2, 1fr); }
+
+/* Steps row with fewer than five steps (About: our journey) */
+.steps[style*="--steps"] { grid-template-columns: repeat(var(--steps), 1fr); }
+@media (max-width: 960px) { .steps[style*="--steps"] { grid-template-columns: 1fr; } }
+
+/* Hero buttons on service and product pages */
+.hero__btns { margin-top: 28px; justify-content: flex-start; }
+@media (max-width: 960px) { .hero__btns { justify-content: center; } }
+
+/* Product page hero: the product's drawn element (dots at rest, lines on hover) */
+.hero__art--illus .illus { width: 100%; max-width: 480px; height: auto; display: block; overflow: visible; }
+.hero__art--illus:hover .illus__dots { opacity: 0; transition-delay: 0.18s; }
+.hero__art--illus:hover .illus__line { opacity: 1; }
+.hero__art--illus:hover .illus__line path { stroke-dashoffset: 0; }
+
+/* Client names (logos to come) */
+.clients { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 12px; }
+.clients li {
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--navy);
+  background: #f2f7fb;
+  box-shadow: inset 0 0 0 1px rgba(17, 122, 191, 0.14);
+  transition: translate 0.25s ease, background-color 0.25s ease, color 0.25s ease;
+}
+.clients li:hover { translate: 0 -2px; background: var(--blue-light); color: var(--blue-dark); }
+.clients--center { justify-content: center; }
+.clients--glass { margin: -12px 0 36px; }
+.clients--glass li { color: var(--white); background: rgba(255, 255, 255, 0.1); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16); font-size: 0.85rem; padding: 8px 16px; }
+.clients--glass li:hover { background: rgba(255, 255, 255, 0.18); color: var(--white); }
+
+/* Contact form: dropdown matches the inputs; optional-field hint */
+.field select {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 12px 14px;
+  border: 1px solid #cdd6dd;
+  border-radius: 8px;
+  background: #fbfdfe;
+  color: var(--ink);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.field select:focus { outline: 2px solid var(--blue); border-color: var(--blue); }
+.field__opt { font-weight: 400; color: var(--gray); }
+
+/* Careers: role details in the accordion */
+.faq--roles .faq__item.is-open .faq__a { max-height: 1600px; }
+.faq--roles .faq__a-inner ul { margin: 0 0 14px; padding-left: 20px; display: grid; gap: 6px; }
+.faq--roles .faq__a-inner p { margin: 0 0 14px; }
+.role__h { margin: 4px 0 8px; font-size: 1rem; font-weight: 700; color: var(--ink-85); }
+
+/* Eight menu items: tighten spacing before the mobile menu takes over */
+@media (max-width: 1180px) and (min-width: 761px) {
+  .nav__links { gap: 22px; }
+  .nav__links a { font-size: 1rem; }
+}
+
+/* =====================================================================
+   Photos: clear at rest (no pixelation). Hover / keyboard focus:
+   the photo brightens, gains a little colour and zooms in, and its
+   frame lifts with a soft blue glow.
+   ===================================================================== */
+.card__pixels { display: none; }
+.card__photo {
+  filter: brightness(1) saturate(1);
+  transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.45s ease !important;
+}
+.card:hover .card__photo,
+.card:focus-visible .card__photo,
+.work-card:hover .card__photo,
+.work-card:focus-visible .card__photo,
+.case:hover .card__photo,
+.case:focus-within .card__photo {
+  transform: scale(1.1);
+  filter: brightness(1.08) saturate(1.18) contrast(1.03);
+}
+/* lift + glow on the photo's frame */
+.card--post .card__media--photo { transition: box-shadow 0.45s ease; }
+.card--post:hover .card__media--photo,
+.card--post:focus-visible .card__media--photo { box-shadow: inset 0 0 0 3px rgba(17, 122, 191, 0.55); }
+.work-card { transition: translate 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 0.45s ease, scale 0.45s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.work-card:hover,
+.work-card:focus-visible { scale: 1.02; box-shadow: 0 0 0 2px rgba(127, 196, 236, 0.7), 0 40px 70px -30px rgba(0, 0, 0, 0.9); }
+.case__media { transition: box-shadow 0.45s ease, translate 0.45s cubic-bezier(0.2, 0.7, 0.2, 1), scale 0.45s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.case:hover .case__media,
+.case:focus-within .case__media { scale: 1.02; box-shadow: 0 0 0 2px rgba(17, 122, 191, 0.55), 0 40px 70px -36px rgba(0, 31, 50, 0.65); }
+@media (prefers-reduced-motion: reduce) {
+  .card:hover .card__photo, .work-card:hover .card__photo, .case:hover .card__photo { transform: none; }
+  .work-card:hover, .case:hover .case__media { scale: none; }
+}

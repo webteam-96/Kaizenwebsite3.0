@@ -13,7 +13,7 @@
      clients      illustrations/hero/clients.js (client logo wall)
 
    Captions: title + sub, shown while an element is clear. Names, roles and
-   companies marked "Lorem" are placeholders — replace with real content.
+   team names marked "Lorem" are placeholders — replace with real content.
    ===================================================================== */
 const IL = require("./illus.js");
 const person = require("./illustrations/hero/person.js");
@@ -31,30 +31,38 @@ const E = (src, t, s) => ({ src, t, s });
 
 const SETS = {
   home: [
-    E("icon:bulb", "Solve Real Business Problems", "Tailor-made enterprise software"),
-    E("card:software", "Build Systems That Scale", "Custom software development"),
-    E("icon:rocket", "Built to Scale", "From launch to growth"),
-    E("icon:chart", "Deliver Measurable Results", "Outcomes over output"),
-    E("icon:users", "A Partner, Not a Vendor", "Government · Corporate · Community"),
-    E("icon:shield", "Secure by Design", "Lorem ipsum dolor sit amet"),
+    E("card:software", "Your Vision, Our Code", "Custom software development company in Mumbai"),
+    E("card:oms", "Organisation Management System", "One platform for your entire organisation"),
+    E("card:restaurant", "Restaurant Chain Management", "Every outlet. One screen."),
+    E("card:marketing", "Agent Bandhu", "WhatsApp automation that actually works"),
+    E("card:event", "Kaizen Events", "From registration to entry – handled"),
+    E("card:transit", "Automated Fare Collection", "Modern ticketing for modern transit"),
+    E("icon:users", "3 Lakh+ Active Users", "15+ years · 25+ projects"),
   ],
   about: [
     E("person:chart:light", "Lorem Ipsum", "Founder & CEO"),
     E("person:code:blue", "Dolor Sit", "Chief Technology Officer"),
     E("person:pen:light", "Amet Consectetur", "Design Lead"),
     E("person:check:blue", "Adipiscing Elit", "Project Manager"),
-    E("clients", "Companies We've Worked With", "Government · Corporate · Community"),
-    E("icon:bulb", "Kaizen Mindset", "Our value: continuous improvement"),
-    E("icon:users", "People First", "Our value"),
-    E("icon:shield", "Integrity", "Our value"),
-    E("icon:chart", "Outcomes Over Output", "Our value"),
+    E("clients", "Who We Have Worked With", "Income Tax Department · Mumbai Port Trust · Rotary · JITO · MRPL"),
+    E("icon:gear", "Software That Fits You", "No forced workflows, no generic modules"),
+    E("icon:shield", "Government-Grade Code", "Data integrity, audit trails, reliability"),
+    E("icon:pin", "Always Reachable", "Based in Maharashtra, serving India"),
+    E("icon:users", "Support After Go-Live", "We maintain what we build"),
+  ],
+  products: [
+    E("card:oms", "Organisation Management System", "Less Manual Work. More Visibility. Better Decisions."),
+    E("card:restaurant", "Restaurant Chain Management", "Less Wastage. More Control. Better Margins."),
+    E("card:marketing", "Agent Bandhu", "Your Sales Agent That Never Forgets."),
+    E("card:event", "Kaizen Events", "Easy Registration. Secure Payments. Fast QR Check-In."),
+    E("card:transit", "Automated Fare Collection", "Unified Ticketing. Digital Validation. Real-Time Visibility."),
   ],
   services: [
-    E("card:software", "Custom Software Development", "Service"),
-    E("card:mobile", "Mobile App Development", "Service"),
-    E("card:event", "Event Registration & Management", "Service"),
-    E("card:web", "Enterprise Web Portals & Websites", "Service"),
-    E("card:marketing", "Digital Marketing Services", "Service"),
+    E("card:software", "Custom Software Development", "Built around your business"),
+    E("card:mobile", "Mobile App Development", "Android and iOS"),
+    E("card:event", "Event Registration & Management", "Registration, payments, QR check-in"),
+    E("card:web", "Enterprise Web Portals & Websites", "Built for performance and security"),
+    E("card:marketing", "Digital Marketing Services", "WhatsApp marketing automation"),
   ],
   work: [
     E("card:web", "Project 01 · Web Portal", "Government"),
@@ -65,26 +73,25 @@ const SETS = {
     E("card:marketing", "Project 06 · Digital Campaign", "Marketing"),
   ],
   blog: [
-    E("icon:bulb", "Insights", "Lorem ipsum dolor sit amet"),
-    E("icon:code", "Engineering", "Lorem ipsum dolor sit amet"),
-    E("icon:pen", "Design", "Lorem ipsum dolor sit amet"),
-    E("icon:megaphone", "Marketing", "Lorem ipsum dolor sit amet"),
-    E("icon:chart", "Case Study", "Lorem ipsum dolor sit amet"),
-    E("icon:globe", "News", "Lorem ipsum dolor sit amet"),
+    E("icon:bulb", "Insights", "Ideas from our team"),
+    E("icon:code", "Engineering", "How we build software"),
+    E("icon:pen", "Design", "Designing for real users"),
+    E("icon:megaphone", "Marketing", "WhatsApp and digital marketing"),
+    E("icon:chart", "Case Study", "Real problems, real results"),
+    E("icon:globe", "News", "Updates from Kaizen Infotech"),
   ],
   careers: [
-    E("icon:code", "Software Engineer", "Engineering · Thane"),
-    E("icon:mobile", "Mobile Developer", "Engineering · Thane"),
-    E("icon:pen", "UI / UX Designer", "Design · Thane"),
-    E("icon:megaphone", "Digital Marketing Executive", "Marketing · Thane"),
-    E("icon:calendar", "Project Coordinator", "Operations · Thane"),
-    E("icon:users", "Life at Kaizen", "Grow with a team that builds systems that scale"),
+    E("icon:megaphone", "Digital Marketing Executive", "Marketing · Thane West · Work from office"),
+    E("icon:chart", "Business Development Manager", "Sales · Thane West · Work from office"),
+    E("icon:users", "Relationship Manager", "Client Success · Thane West · Work from office"),
+    E("icon:code", "Live Systems From Month One", "Real products, real users"),
+    E("icon:bulb", "Life at Kaizen", "A small team where your growth is real"),
   ],
   contact: [
-    E("icon:mail", "Email Us", "communication@kaizeninfotech.com"),
-    E("icon:mobile", "Call Us", "+91 93724 30855"),
-    E("icon:pin", "Visit Us", "Thane West, Thane, Maharashtra 400604"),
-    E("icon:users", "Let's Talk", "Tell us about your project"),
+    E("icon:mail", "Email Us", "promotion@kaizeninfotech.com"),
+    E("icon:mobile", "Call Us", "+91 93721 30855"),
+    E("icon:pin", "Visit Us", "Wagle Industrial Estate, Thane West, Maharashtra 400604"),
+    E("icon:users", "Let's Build Something Together", "Tell us about your requirement"),
   ],
 };
 

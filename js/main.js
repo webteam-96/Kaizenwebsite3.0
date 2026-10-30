@@ -59,7 +59,7 @@
       if (note) {
         note.innerHTML =
           'Thanks! Online messages aren\'t switched on yet — please email us at ' +
-          '<a href="mailto:communication@kaizeninfotech.com">communication@kaizeninfotech.com</a>.';
+          '<a href="mailto:promotion@kaizeninfotech.com">promotion@kaizeninfotech.com</a>.';
         note.hidden = false;
       }
     });
