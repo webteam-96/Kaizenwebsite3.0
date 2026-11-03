@@ -28,7 +28,7 @@
     [".work-card", "wipe", true],
     [".case__media", "wipe", false],
     [".case__body > *", "up", true],
-    [".card", "rise", true],
+    [".card:not(.hscroll .card)", "rise", true], // the products scroller runs its own entrance (section 5)
     [".feature", "rise", true],
     [".step", "rise", true],
     [".tech__tile", "pop", true],
@@ -168,4 +168,124 @@
     }, true);
     form.addEventListener("animationend", function () { form.classList.remove("is-shake"); });
   }
+  /* ------------- 5. home "Our Products": scroll-driven horizontal row */
+  // The section is made tall enough that scrolling down through it slides
+  // the row from its first card to its last while the row stays pinned.
+  // Position and card scale are eased toward their targets every frame,
+  // so growing into the centre and shrinking out of it are equally smooth.
+  document.querySelectorAll("[data-hscroll]").forEach(function (sec) {
+    if (reduce) return; // keep the plain swipeable row
+    var pin = sec.querySelector(".hscroll__pin");
+    var viewport = sec.querySelector(".hscroll__viewport");
+    var track = sec.querySelector(".hscroll__track");
+    var cards = Array.prototype.slice.call(track.children);
+    if (!pin || !cards.length) return;
+    var MAX = 0.12; // centre card grows 12%
+
+    var dots = document.createElement("div");
+    dots.className = "hscroll__dots";
+    dots.setAttribute("aria-hidden", "true");
+    dots.innerHTML = cards.map(function () { return "<span></span>"; }).join("");
+    viewport.after(dots);
+    var dotEls = Array.prototype.slice.call(dots.children);
+
+    var dist = 0, top = 0, cur = 0, target = 0, scales = cards.map(function () { return 1; });
+    var pinned = false, running = false, step = 0;
+
+    function layout() {
+      var hh = header ? header.offsetHeight : 0;
+      var avail = window.innerHeight - hh;
+      sec.classList.remove("is-pinned");
+      sec.style.height = "";
+      sec.style.removeProperty("--hs-w");
+      pin.style.cssText = "";
+      // size the cards to the screen: grow them into ~60% of the spare height
+      // (the rest stays as breathing room), or shrink them until the block fits
+      var PAD = 24; // the pinned block's own top + bottom padding
+      var w = cards[0].offsetWidth, slack = avail - PAD - pin.offsetHeight;
+      var fitW = slack > 0
+        ? Math.max(w, Math.min(360, window.innerWidth * 0.3, w + (slack * 0.6) / 0.75))
+        : Math.max(Math.min(w, window.innerWidth > 760 ? 250 : 220), w + slack / 0.75 - 4); // card height ≈ 0.75 × width + body
+      if (Math.abs(fitW - w) > 4) sec.style.setProperty("--hs-w", Math.round(fitW) + "px");
+      // the larger ghost title must break onto the same lines as the bold one;
+      // at a few widths it wraps one line more, so nudge the width a few px
+      var lines = function (el) { return Math.round(el.offsetHeight / (parseFloat(getComputedStyle(el).fontSize) * 1.2)); };
+      var ghostsOk = function () {
+        return Array.prototype.every.call(sec.querySelectorAll(".card__titles"), function (t) {
+          var g = t.querySelector(".card__ghost"), b = t.querySelector(".card__title");
+          return !g || !b || lines(g) === lines(b);
+        });
+      };
+      var base = cards[0].offsetWidth;
+      for (var n = 1; n <= 16 && !ghostsOk(); n++) sec.style.setProperty("--hs-w", base + (n % 2 ? -1 : 1) * 2 * Math.ceil(n / 2) + "px");
+      if (!ghostsOk()) sec.style.setProperty("--hs-w", base + "px");
+      // On short screens the block is taller than the space under the header:
+      // it then pins a little higher, so the heading tucks under the header
+      // while the cards slide. Too short even for that → leave the swipe row.
+      var need = pin.offsetHeight + PAD, over = Math.max(0, need - avail);
+      pinned = over <= pin.firstElementChild.offsetHeight;
+      if (!pinned) { track.style.transform = ""; cards.forEach(function (c) { c.style.scale = ""; c.classList.add("is-shown"); }); return; }
+      sec.classList.add("is-pinned");
+      viewport.scrollLeft = 0;
+      var pinH = Math.max(avail, need);
+      top = hh - over;
+      pin.style.top = top + "px";
+      pin.style.height = pinH + "px";
+      var c0 = cards[0], cl = cards[cards.length - 1];
+      step = cards.length > 1 ? cards[1].offsetLeft - c0.offsetLeft : 1;
+      dist = Math.max(0, cl.offsetLeft - c0.offsetLeft); // first card centred → last card centred
+      sec.style.height = pinH + dist + "px";
+      measure();
+      cur = target;
+      render();
+    }
+    function measure() {
+      var p = dist ? Math.min(1, Math.max(0, (top - sec.getBoundingClientRect().top) / dist)) : 0;
+      target = -p * dist;
+    }
+    function render() {
+      track.style.transform = "translate3d(" + cur.toFixed(2) + "px,0,0)";
+      var mid = pin.clientWidth / 2, vw = pin.clientWidth, settled = true, best = 0, bestK = -1;
+      cards.forEach(function (c, i) {
+        var left = c.offsetLeft + cur, w = c.offsetWidth;
+        var d = Math.abs(left + w / 2 - mid) / step; // 0 at centre, 1 one card away
+        var k = Math.max(0, 1 - d);
+        k = k * k * (3 - 2 * k); // smoothstep: eases in and out of the peak
+        var s = 1 + MAX * k;
+        scales[i] += (s - scales[i]) * 0.2;
+        if (Math.abs(s - scales[i]) > 0.0005) settled = false; else scales[i] = s;
+        c.style.scale = scales[i].toFixed(4);
+        c.classList.toggle("is-center", k > 0.55);
+        if (k > bestK) { bestK = k; best = i; }
+        if (left < vw * 0.92 && left + w > vw * 0.08) c.classList.add("is-shown");
+      });
+      dotEls.forEach(function (dEl, i) { dEl.classList.toggle("is-on", i === best); });
+      return settled;
+    }
+    function tick() {
+      cur += (target - cur) * 0.12;
+      if (Math.abs(target - cur) < 0.1) cur = target;
+      var settled = render();
+      if (cur !== target || !settled) requestAnimationFrame(tick); else running = false;
+    }
+    function wake() {
+      if (!pinned) return;
+      measure();
+      if (!running) { running = true; requestAnimationFrame(tick); }
+    }
+    window.addEventListener("scroll", wake, { passive: true });
+    var rt;
+    window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(layout, 150); });
+    window.addEventListener("load", layout);
+    layout();
+
+    // keyboard: tabbing to a card scrolls the page so that card is centred
+    cards.forEach(function (c, i) {
+      c.addEventListener("focus", function () {
+        if (!pinned) return;
+        var y = window.scrollY + sec.getBoundingClientRect().top - top + (cards.length > 1 ? dist * i / (cards.length - 1) : 0);
+        window.scrollTo({ top: y, behavior: "smooth" });
+      });
+    });
+  });
 })();

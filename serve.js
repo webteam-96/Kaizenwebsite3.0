@@ -4,6 +4,27 @@
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
+const https = require("https");
+
+// The OMS careers API sends no CORS headers yet, so the careers form on
+// localhost calls /oms-careers/... and this server forwards it to OMS.
+const OMS_CAREERS = "https://oms.kaizeninfotech.com/API/api/public/careers";
+
+function proxyCareers(req, res) {
+  const target = new URL(OMS_CAREERS + req.url.slice("/oms-careers".length));
+  const headers = { accept: req.headers.accept || "application/json" };
+  if (req.headers["content-type"]) headers["content-type"] = req.headers["content-type"];
+  if (req.headers["content-length"]) headers["content-length"] = req.headers["content-length"];
+  const up = https.request(target, { method: req.method, headers }, (r) => {
+    res.writeHead(r.statusCode, { "Content-Type": r.headers["content-type"] || "application/json" });
+    r.pipe(res);
+  });
+  up.on("error", () => {
+    res.writeHead(502, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ success: false, data: null, error: { code: "proxy_error", message: "Could not reach the careers service." } }));
+  });
+  req.pipe(up);
+}
 
 const ROOT = __dirname;
 const PORT = Number(process.env.PORT) || 8099;
@@ -23,6 +44,7 @@ const TYPES = {
 
 http
   .createServer((req, res) => {
+    if (req.url === "/oms-careers" || req.url.startsWith("/oms-careers/") || req.url.startsWith("/oms-careers?")) return proxyCareers(req, res);
     let urlPath = decodeURIComponent(req.url.split("?")[0]);
     if (urlPath.endsWith("/")) urlPath += "index.html";
 

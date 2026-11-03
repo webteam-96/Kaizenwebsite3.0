@@ -243,8 +243,18 @@ ${links}
   </header>`;
 }
 
+// Brand marks for the footer social links (24×24, drawn in currentColor)
+const SOCIAL_ICONS = {
+  LinkedIn: '<path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13zM7.12 20.45H3.56V9h3.56v11.45zM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/>',
+  Instagram: '<rect x="2.5" y="2.5" width="19" height="19" rx="5.5" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="12" cy="12" r="4.3" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="17.6" cy="6.4" r="1.4" fill="currentColor"/>',
+  Facebook: '<path fill="currentColor" d="M9.1 23.69v-7.98H6.63v-3.67H9.1v-1.58c0-4.09 1.85-5.98 5.86-5.98.4 0 .96.04 1.47.1.51.06.89.12 1.14.2v3.32a8.6 8.6 0 0 0-1.39-.05c-.7 0-1.26.1-1.67.31-.29.14-.52.35-.68.62-.26.42-.38 1-.38 1.75v1.3h3.92l-.67 3.67h-3.25v8.24C19.4 23.24 24 18.18 24 12.04 24 5.42 18.63.04 12 .04S0 5.42 0 12.04c0 5.63 3.87 10.35 9.1 11.65z"/>',
+  X: '<path fill="currentColor" d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.41l-5.8-7.59-6.64 7.59H.47l8.6-9.83L0 1.15h7.59l5.24 6.93 6.07-6.93zm-1.29 19.5h2.04L6.49 3.24H4.3l13.31 17.41z"/>',
+};
+
 function footer() {
-  const social = SITE.social.map(([n, u]) => `<a href="${u}" rel="noopener" target="_blank">${n}</a>`).join(" · ");
+  const social = SITE.social
+    .map(([n, u]) => `<a class="social social--${n.toLowerCase()}" href="${u}" rel="noopener" target="_blank" aria-label="Kaizen Infotech on ${n}" title="${n}"><svg viewBox="0 0 24 24" aria-hidden="true">${SOCIAL_ICONS[n]}</svg></a>`)
+    .join("\n              ");
   return `  <footer class="footer">
     <div class="container">
       <div class="footer__grid">
@@ -283,7 +293,9 @@ ${products.map((p) => `            <li><a href="${p.file}">${esc(p.card)}</a></l
             <li><a href="mailto:${SITE.email}">${SITE.email}</a></li>
             <li><a href="tel:${SITE.phoneHref}">${SITE.phone}</a></li>
             <li><a href="${SITE.maps}" rel="noopener" target="_blank">${esc(SITE.address.street)}, ${SITE.address.locality}, ${SITE.address.region} ${SITE.address.postal}</a></li>
-            <li>${social}</li>
+            <li class="footer__social">
+              ${social}
+            </li>
           </ul>
         </div>
       </div>
@@ -408,7 +420,7 @@ ${tiles}
 
 // FAQ accordion. items = [[question, answer], ...]; answers are plain text
 // unless opts.html. FAQPage schema is added by the page, from the same items.
-function faqSection(items, { title = "Frequently Asked Questions", html = false, cls = "" } = {}) {
+function faqSection(items, { title = "Frequently Asked Questions", html = false, cls = "", dark = false } = {}) {
   const rows = items
     .map(
       ([q, a], i) => `        <div class="faq__item${i === 0 ? " is-open" : ""}">
@@ -419,7 +431,7 @@ function faqSection(items, { title = "Frequently Asked Questions", html = false,
         </div>`
     )
     .join("\n");
-  return `  <section class="section">
+  return `  <section class="section${dark ? " band-navy faq-dark" : ""}">
     <div class="container" style="max-width:1250px">
       <h2 class="section-title section-title--center">${esc(title)}</h2>
       <div class="faq${cls ? " " + cls : ""}">
@@ -488,6 +500,25 @@ ${sectionHead(title, opts)}
       <div class="card-grid">
 ${items.map((it) => card(it, opts)).join("\n")}
       </div>${sectionButton(opts.button)}
+    </div>
+  </section>`;
+}
+
+// Horizontal card scroller (home "Our Products"). Without JS it is a plain
+// swipeable row; js/motion.js pins it and drives it from the page scroll.
+function cardScroller(title, items, opts = {}) {
+  return `  <section class="section hscroll" data-hscroll>
+    <div class="hscroll__pin">
+      <div class="container" style="max-width:1350px">
+${sectionHead(title, opts)}
+      </div>
+      <div class="hscroll__viewport">
+        <div class="hscroll__track">
+${items.map((it) => card(it, opts)).join("\n")}
+        </div>
+      </div>
+      <div class="container">${sectionButton(opts.button)}
+      </div>
     </div>
   </section>`;
 }
@@ -792,15 +823,15 @@ ${ticker()}
 
 ${cardSection(H.whatWeDo.title, services.map(serviceItem), false, { compact: true, eyebrow: H.whatWeDo.eyebrow, intro: H.whatWeDo.text, button: ["Know More", "services.html"] })}
 
-${cardSection(H.products.title, products.map(productItem), false, { compact: true, eyebrow: H.products.eyebrow, intro: H.products.text, button: ["Explore All Products →", "products.html"] })}
-
 ${workShowcase(PROJECTS.slice(0, 3), { intro: H.work.text, clients: true })}
 
-${featureGrid(H.why.title, H.why.items, false, { eyebrow: H.why.eyebrow, intro: H.why.text, button: ["Our Story →", "about.html"] })}
+${cardScroller(H.products.title, products.map(productItem), { compact: true, eyebrow: H.products.eyebrow, intro: H.products.text, button: ["Explore All Products →", "products.html"] })}
 
 ${steps("How We Work", H.steps, true)}
 
-${faqSection(H.faq)}
+${featureGrid(H.why.title, H.why.items, false, { eyebrow: H.why.eyebrow, intro: H.why.text, button: ["Our Story →", "about.html"] })}
+
+${faqSection(H.faq, { dark: true })}
 
 ${cta(H.cta, { primary: ["Talk to Us", "contact.html"], secondary: ["All Products", "products.html"] })}
   </main>
@@ -1065,6 +1096,85 @@ ${footer()}`
   );
 }
 
+// Careers application pop-up. Posts (multipart) to the OMS careers API
+// (SITE.careersApi + "/apply"), protected by the OMS image captcha ("/captcha").
+function applyDialog(roles) {
+  return `  <dialog class="apply" id="apply" aria-labelledby="apply-title" data-api="${SITE.careersApi}" data-email="${SITE.careersEmail}">
+    <div class="apply__panel">
+      <button class="apply__close" type="button" data-apply-close aria-label="Close the application form"><span aria-hidden="true"></span></button>
+      <form class="apply__form" novalidate data-apply-form>
+        <p class="eyebrow">Careers</p>
+        <h2 class="apply__title" id="apply-title">Apply to Kaizen</h2>
+        <p class="apply__intro">Tell us a little about yourself and attach your resume. We read every application.</p>
+        <div class="field">
+          <label for="ap-name">Full Name</label>
+          <input id="ap-name" name="fullName" type="text" autocomplete="name" maxlength="200" required />
+          <p class="field__err" hidden></p>
+        </div>
+        <div class="apply__row">
+          <div class="field">
+            <label for="ap-email">Email Address</label>
+            <input id="ap-email" name="email" type="email" autocomplete="email" maxlength="254" required />
+            <p class="field__err" hidden></p>
+          </div>
+          <div class="field">
+            <label for="ap-phone">Phone Number</label>
+            <input id="ap-phone" name="phoneE164" type="tel" autocomplete="tel" placeholder="+91 98765 43210" maxlength="20" required />
+            <p class="field__err" hidden></p>
+          </div>
+        </div>
+        <div class="field">
+          <label for="ap-location">Current City and Country</label>
+          <input id="ap-location" name="location" type="text" autocomplete="address-level2" placeholder="e.g. Thane, India" maxlength="200" required />
+          <p class="field__err" hidden></p>
+        </div>
+        <div class="field">
+          <label for="ap-role">Role Applying For</label>
+          <select id="ap-role" name="position" required>
+            <option value="">Select a role</option>
+${roles.map((r) => `            <option>${esc(r.title)}</option>`).join("\n")}
+            <option value="General Application">Other / General Application</option>
+          </select>
+          <p class="field__err" hidden></p>
+        </div>
+        <div class="field">
+          <span class="field__label" id="ap-resume-label">Resume</span>
+          <label class="drop" for="ap-resume">
+            <input id="ap-resume" name="resume" type="file" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" aria-labelledby="ap-resume-label" aria-describedby="ap-resume-help" required />
+            <span class="drop__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 15V4m0 0L7.5 8.5M12 4l4.5 4.5M5 15v3.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V15"/></svg></span>
+            <span class="drop__text" data-drop-text><strong>Choose a file</strong> or drag it here</span>
+            <span class="drop__help" id="ap-resume-help">PDF, DOC or DOCX · up to 5 MB</span>
+          </label>
+          <p class="field__err" hidden></p>
+        </div>
+        <div class="apply__hp" aria-hidden="true">
+          <label for="ap-website">Company website (leave blank)</label>
+          <input id="ap-website" name="honeypot" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="ap-captcha">Verification</label>
+          <div class="captcha">
+            <div class="captcha__img"><img alt="Verification code: type the characters shown" data-captcha-img hidden /></div>
+            <button class="captcha__new" type="button" data-captcha-new aria-label="Show a new code" title="New code"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg></button>
+            <input id="ap-captcha" name="captchaAnswer" type="text" placeholder="Type the code" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="12" required />
+          </div>
+          <input type="hidden" name="captchaToken" />
+          <p class="field__err" hidden></p>
+        </div>
+        <p class="apply__status" role="alert" hidden></p>
+        <button class="btn btn--primary apply__submit" type="submit">Submit Application</button>
+        <p class="apply__fine">By applying you agree that we may store your details to consider you for this and future roles.</p>
+      </form>
+      <div class="apply__done" hidden>
+        <span class="apply__tick" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+        <h2 class="apply__title" tabindex="-1">Application received</h2>
+        <p>Thank you for applying. Our team will review your resume and get back to you if your profile is a match.</p>
+        <button class="btn btn--primary" type="button" data-apply-close>Close</button>
+      </div>
+    </div>
+  </dialog>`;
+}
+
 function careers() {
   const K = C.CAREERS;
   const file = "careers.html";
@@ -1073,8 +1183,13 @@ function careers() {
   const list = (items) => `<ul>${items.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>`;
   const details = K.roles.map((r) => [
     r.title,
-    `<p>${esc(r.overview)}</p><h3 class="role__h">What you will do</h3>${list(r.do)}<h3 class="role__h">What we are looking for</h3>${list(r.want)}<p>${esc(r.apply)} to <a href="${mailto(SITE.careersEmail, `${r.title} Application`)}">${SITE.careersEmail}</a> with the subject “${esc(r.title)} Application”.</p>`,
+    `<p>${esc(r.overview)}</p><h3 class="role__h">What you will do</h3>${list(r.do)}<h3 class="role__h">What we are looking for</h3>${list(r.want)}<p><button class="btn btn--primary" type="button" data-apply="${esc(r.title)}">Apply Now</button></p><p>Or ${esc(r.apply.charAt(0).toLowerCase() + r.apply.slice(1))} to <a href="${mailto(SITE.careersEmail, `${r.title} Application`)}">${SITE.careersEmail}</a> with the subject “${esc(r.title)} Application”.</p>`,
   ]);
+  // "Apply" rows open the application pop-up (js/main.js); the mailto stays as the no-JS fallback
+  let openings = rowList("Open Positions", rows).replace('<section class="section">', '<section class="section" id="open-positions">');
+  K.roles.forEach((r) => {
+    openings = openings.replace(`<a class="row-card" href="${mailto(SITE.careersEmail, `${r.title} Application`)}">`, (m) => m.replace("<a ", `<a data-apply="${esc(r.title)}" `));
+  });
   const jobs = K.roles.map((r) => ({
     "@type": "JobPosting",
     title: r.title,
@@ -1093,7 +1208,7 @@ ${pageHero({ current: "Careers", title: esc(K.h1), text: esc(K.text), buttons: [
 
 ${overviewBand("Life at Kaizen", K.life)}
 
-${rowList("Open Positions", rows).replace('<section class="section">', '<section class="section" id="open-positions">')}
+${openings}
 
 ${faqSection(details, { title: "About the Roles", html: true, cls: "faq--roles" })}
 
@@ -1101,6 +1216,7 @@ ${checklist(K.cultureTitle, K.culture)}
 
 ${cta(K.cta, { title: "Don't See Your Role?", primary: ["Email Your Resume", mailto(SITE.careersEmail)], secondary: ["About Us", "about.html"] })}
   </main>
+${applyDialog(K.roles)}
 ${footer()}`
   );
 }

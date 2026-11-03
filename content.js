@@ -13,10 +13,12 @@ const SITE = {
   short: "Kaizen Infotech",
   url: "https://www.kaizeninfotech.com/", // canonical origin (with trailing slash)
   tagline: "Your Vision, Our Code.",
-  email: "promotion@kaizeninfotech.com",
+  email: "mayuresh.joshi@kaizeninfotech.com",
   careersEmail: "careers@kaizeninfotech.com",
-  phone: "+91 93721 30855",
-  phoneHref: "+919372130855",
+  // OMS public careers API: GET → open roles, POST /{publicSlug}/apply → application (multipart)
+  careersApi: "https://oms.kaizeninfotech.com/API/api/public/careers",
+  phone: "+91 93724 30855",
+  phoneHref: "+919372430855",
   address: {
     street: "Centrum Business Square, A 406, Road No. 16, Nehru Nagar, Wagle Industrial Estate",
     locality: "Thane West",

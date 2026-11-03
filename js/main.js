@@ -59,7 +59,7 @@
       if (note) {
         note.innerHTML =
           'Thanks! Online messages aren\'t switched on yet — please email us at ' +
-          '<a href="mailto:promotion@kaizeninfotech.com">promotion@kaizeninfotech.com</a>.';
+          '<a href="mailto:mayuresh.joshi@kaizeninfotech.com">mayuresh.joshi@kaizeninfotech.com</a>.';
         note.hidden = false;
       }
     });
@@ -159,5 +159,186 @@
   /* ---- Mark current year in footer ---- */
   document.querySelectorAll("[data-year]").forEach(function (el) {
     el.textContent = new Date().getFullYear();
+  });
+})();
+
+/* ---- Careers: application pop-up ----
+   Every [data-apply] button/link opens the form; its value preselects the
+   role. The form posts (multipart) to the OMS careers API at {api}/apply,
+   guarded by the OMS image captcha from {api}/captcha. Each captcha code
+   works once, so a fresh one is fetched after every attempt.
+   No <dialog> support → the mailto links keep working as before.          */
+(function () {
+  "use strict";
+  var dlg = document.getElementById("apply");
+  if (!dlg || typeof dlg.showModal !== "function") return;
+
+  var API = dlg.getAttribute("data-api");
+  // OMS allows cross-site calls only from the live domain, so local previews go through serve.js
+  if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) API = "/oms-careers";
+  var EMAIL = dlg.getAttribute("data-email");
+  var MAX_BYTES = 5242880, RESUME_EXT = /\.(pdf|docx?)$/i;
+
+  var form = dlg.querySelector("[data-apply-form]");
+  var done = dlg.querySelector(".apply__done");
+  var status = form.querySelector(".apply__status"), submit = form.querySelector(".apply__submit");
+  var file = form.elements.resume, drop = form.querySelector(".drop"), dropText = form.querySelector("[data-drop-text]");
+  var capImg = form.querySelector("[data-captcha-img]"), capNew = form.querySelector("[data-captcha-new]");
+  var capBox = form.querySelector(".captcha");
+  var mailLink = '<a href="mailto:' + EMAIL + '">' + EMAIL + "</a>";
+  var tried = false;
+
+  function esc(t) { return String(t).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function say(el, html) { el.innerHTML = html || ""; el.hidden = !html; }
+
+  /* captcha */
+  var capReq = 0;
+  function loadCaptcha() {
+    var id = ++capReq;
+    capBox.classList.add("is-loading");
+    form.elements.captchaToken.value = "";
+    form.elements.captchaAnswer.value = "";
+    return fetch(API + "/captcha", { headers: { Accept: "application/json" }, cache: "no-store" })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (id !== capReq) return;
+        if (!j || !j.success || !j.data) throw new Error("captcha");
+        capImg.src = j.data.image;
+        capImg.hidden = false;
+        form.elements.captchaToken.value = j.data.token;
+      })
+      .catch(function () {
+        if (id !== capReq) return;
+        capImg.hidden = true;
+        setError("captchaAnswer", "We couldn’t load the verification code. Press the refresh button to try again.");
+      })
+      .then(function () { if (id === capReq) capBox.classList.remove("is-loading"); });
+  }
+  capNew.addEventListener("click", function () {
+    setError("captchaAnswer", "");
+    loadCaptcha().then(function () { form.elements.captchaAnswer.focus(); });
+  });
+
+  /* validation */
+  var CHECKS = {
+    fullName: function (v) { return v ? "" : "Please enter your full name."; },
+    email: function (v) { return !v ? "Please enter your email address." : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? "" : "Enter a valid email address."; },
+    phoneE164: function (v) { return !v ? "Please enter your phone number." : /^\+?[0-9]{6,15}$/.test(v.replace(/[\s()-]/g, "")) ? "" : "Enter a valid phone number, e.g. +91 98765 43210."; },
+    location: function (v) { return v ? "" : "Please enter your current city and country."; },
+    position: function (v) { return v ? "" : "Please choose the role you are applying for."; },
+    resume: function () {
+      var f = file.files[0];
+      return !f ? "Please attach your resume." : !RESUME_EXT.test(f.name) ? "Upload a PDF, DOC or DOCX file." : f.size > MAX_BYTES ? "Your resume must be 5 MB or smaller." : "";
+    },
+    captchaAnswer: function (v) { return v ? "" : "Please type the code shown in the image."; },
+  };
+  function setError(name, msg) {
+    var el = form.elements[name], field = el.closest(".field"), err = field.querySelector(".field__err");
+    field.classList.toggle("is-invalid", !!msg);
+    el.setAttribute("aria-invalid", msg ? "true" : "false");
+    err.id = err.id || "ap-err-" + name;
+    var desc = (el.getAttribute("aria-describedby") || "").split(" ").filter(function (d) { return d && d !== err.id; });
+    if (msg) desc.push(err.id);
+    if (desc.length) el.setAttribute("aria-describedby", desc.join(" ")); else el.removeAttribute("aria-describedby");
+    say(err, msg ? esc(msg) : "");
+    return !msg;
+  }
+  function check(name) {
+    var el = form.elements[name];
+    return setError(name, CHECKS[name](el.type === "file" ? "" : el.value.trim()));
+  }
+  Object.keys(CHECKS).forEach(function (name) {
+    var el = form.elements[name];
+    el.addEventListener(el.tagName === "SELECT" || el.type === "file" ? "change" : "blur", function () { if (tried || el.value) check(name); });
+    el.addEventListener("input", function () { if (tried) check(name); });
+  });
+
+  /* resume picker: show the chosen file; accept drag and drop */
+  function showFile() {
+    var f = file.files[0];
+    drop.classList.toggle("has-file", !!f);
+    dropText.innerHTML = f
+      ? "<strong>" + esc(f.name) + "</strong> · " + (f.size / 1048576).toFixed(f.size < 104858 ? 2 : 1) + " MB · <u>change</u>"
+      : "<strong>Choose a file</strong> or drag it here";
+  }
+  file.addEventListener("change", showFile);
+  ["dragenter", "dragover"].forEach(function (t) { drop.addEventListener(t, function (e) { e.preventDefault(); drop.classList.add("is-over"); }); });
+  ["dragleave", "drop"].forEach(function (t) { drop.addEventListener(t, function () { drop.classList.remove("is-over"); }); });
+  drop.addEventListener("drop", function (e) {
+    e.preventDefault();
+    if (!e.dataTransfer || !e.dataTransfer.files.length) return;
+    try { file.files = e.dataTransfer.files; } catch (_) { return; }
+    file.dispatchEvent(new Event("change"));
+  });
+
+  /* open / close */
+  function reset() {
+    form.reset(); showFile(); tried = false;
+    Object.keys(CHECKS).forEach(function (n) { setError(n, ""); });
+    form.hidden = false; done.hidden = true;
+  }
+  function open(role) {
+    if (!done.hidden) reset();
+    say(status, "");
+    var sel = form.elements.position;
+    if (role) {
+      var match = Array.prototype.filter.call(sel.options, function (o) { return o.value.toLowerCase() === role.toLowerCase(); })[0];
+      sel.value = match ? match.value : "General Application";
+    }
+    dlg.showModal();
+    form.elements.fullName.focus();
+    loadCaptcha();
+  }
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest("[data-apply]");
+    if (!t) return;
+    e.preventDefault();
+    open(t.getAttribute("data-apply"));
+  });
+  dlg.addEventListener("click", function (e) {
+    if (e.target === dlg || (e.target.closest && e.target.closest("[data-apply-close]"))) dlg.close();
+  });
+
+  /* submit */
+  function busy(on) {
+    submit.disabled = on;
+    form.setAttribute("aria-busy", on ? "true" : "false");
+    submit.textContent = on ? "Sending…" : "Submit Application";
+  }
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    tried = true;
+    say(status, "");
+    var bad = Object.keys(CHECKS).filter(function (n) { return !check(n); });
+    if (bad.length) { form.elements[bad[0]].focus(); return; }
+    var v = function (n) { return form.elements[n].value.trim(); };
+    var fd = new FormData();
+    fd.append("fullName", v("fullName"));
+    fd.append("email", v("email"));
+    fd.append("phoneE164", v("phoneE164").replace(/[\s()-]/g, ""));
+    fd.append("position", v("position"));
+    fd.append("currentLocation", v("location"));
+    fd.append("resume", file.files[0], file.files[0].name);
+    fd.append("honeypot", form.elements.honeypot.value);
+    fd.append("captchaToken", form.elements.captchaToken.value);
+    fd.append("captchaAnswer", v("captchaAnswer"));
+    busy(true);
+    fetch(API + "/apply", { method: "POST", body: fd })
+      .then(function (r) { return r.status === 429 ? { success: false, error: { code: "careers_rate_limited", message: "Too many tries. Please try again in a little while." } } : r.json(); })
+      .then(function (j) {
+        if (j && j.success) {
+          form.hidden = true; done.hidden = false;
+          done.querySelector(".apply__title").focus();
+          return;
+        }
+        var err = (j && j.error) || {};
+        if (err.code === "careers_invalid_resume") { setError("resume", err.message || CHECKS.resume()); file.focus(); return; }
+        if (/captcha/i.test(err.code || "")) { setError("captchaAnswer", err.message || "That code didn’t match. Please try the new code."); form.elements.captchaAnswer.focus(); return; }
+        say(status, esc(err.message || "Something went wrong.") + " If it keeps happening, email your resume to " + mailLink + ".");
+      })
+      .catch(function () {
+        say(status, "We couldn’t send your application. Please check your connection and try again, or email your resume to " + mailLink + ".");
+      })
+      .then(function () { busy(false); if (done.hidden) loadCaptcha(); }); // each code works once
   });
 })();

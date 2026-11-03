@@ -88,8 +88,8 @@ const SETS = {
     E("icon:bulb", "Life at Kaizen", "A small team where your growth is real"),
   ],
   contact: [
-    E("icon:mail", "Email Us", "promotion@kaizeninfotech.com"),
-    E("icon:mobile", "Call Us", "+91 93721 30855"),
+    E("icon:mail", "Email Us", "mayuresh.joshi@kaizeninfotech.com"),
+    E("icon:mobile", "Call Us", "+91 93724 30855"),
     E("icon:pin", "Visit Us", "Wagle Industrial Estate, Thane West, Maharashtra 400604"),
     E("icon:users", "Let's Build Something Together", "Tell us about your requirement"),
   ],
