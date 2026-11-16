@@ -44,7 +44,6 @@ const SETS = {
     E("person:code:blue", "Dolor Sit", "Chief Technology Officer"),
     E("person:pen:light", "Amet Consectetur", "Design Lead"),
     E("person:check:blue", "Adipiscing Elit", "Project Manager"),
-    E("clients", "Who We Have Worked With", "Income Tax Department · Mumbai Port Trust · Rotary · JITO · MRPL"),
     E("icon:gear", "Software That Fits You", "No forced workflows, no generic modules"),
     E("icon:shield", "Government-Grade Code", "Data integrity, audit trails, reliability"),
     E("icon:pin", "Always Reachable", "Based in Maharashtra, serving India"),

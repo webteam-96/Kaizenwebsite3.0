@@ -399,7 +399,7 @@ const TECH_DEFAULT = [
   ["chart", "Analytics"],
 ];
 
-function techStrip(set = TECH_DEFAULT, title = "Technologies") {
+function techStrip(set = TECH_DEFAULT, title = "Technologies", light = false) {
   const tiles = set
     .map(
       ([icon, label]) => `        <div class="tech__tile">
@@ -408,7 +408,7 @@ function techStrip(set = TECH_DEFAULT, title = "Technologies") {
         </div>`
     )
     .join("\n");
-  return `  <section class="section--tight band-navy">
+  return `  <section class="section--tight ${light ? "band-light" : "band-navy"}">
     <div class="container tech" style="max-width:1250px">
       <h2 class="section-title">${title}</h2>
       <div class="tech__row">
@@ -856,19 +856,17 @@ ${pageHero({ crumb: ["Company", null], current: "About Us", title: esc(A.h1), te
 
 ${ticker()}
 
-${overviewBand(A.who.title, A.who.paras)}
+${overviewBand(A.who.title, A.who.paras, false)}
 
-${steps(A.journey.title, A.journey.items)}
-
-${featureGrid(A.why.title, A.why.items, true)}
+${steps(A.journey.title, A.journey.items, true)}
 
 ${overviewBand(A.culture.title, A.culture.paras, false)}
 
-${techStrip([["users", "Teams"], ["gear", "Process"], ["shield", "Quality"], ["rocket", "Delivery"], ["chart", "Impact"]], "How We Deliver")}
+${featureGrid(A.why.title, A.why.items, true)}
 
-${clientsSection(A.clientsTitle)}
+${techStrip([["users", "Teams"], ["gear", "Process"], ["shield", "Quality"], ["rocket", "Delivery"], ["chart", "Impact"]], "How We Deliver", true)}
 
-${faqSection(A.faq, { title: "About – Frequently Asked Questions" })}
+${faqSection(A.faq, { title: "About – Frequently Asked Questions", dark: true })}
 
 ${cta(A.cta)}
   </main>

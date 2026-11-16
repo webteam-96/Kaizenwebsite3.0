@@ -790,10 +790,9 @@ button { font-family: inherit; cursor: pointer; }
 .feature h3 { margin: 6px 0 2px; font-size: 1.2rem; font-weight: 700; color: var(--ink-85); }
 .feature p { margin: 0; color: var(--gray); font-size: 1rem; }
 
-.band-navy .feature__ic { background: var(--navy-soft); }
+.band-navy .feature__ic { background: var(--white); }
 .band-navy .feature h3 { color: var(--white); }
 .band-navy .feature p { color: rgba(255, 255, 255, 0.8); }
-.band-navy .feature__ic .picon { color: #7fc4ec; }
 
 /* ---------- Utilities ---------- */
 .center { text-align: center; }
@@ -1741,3 +1740,8 @@ html:has(.apply[open]) { overflow: hidden; } /* no page scroll behind the form *
   .captcha input { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) { .captcha.is-loading .captcha__img { animation: none; } .captcha__new svg { transition: none; } }
+
+/* Light variant of the tech strip (About › How We Deliver) */
+.band-light { background: var(--blue-light); color: var(--ink); }
+.band-light .tech__label { color: var(--ink); }
+.band-light .tech__disc { box-shadow: 0 10px 24px -16px rgba(0, 20, 40, 0.35); }

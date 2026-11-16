@@ -133,7 +133,6 @@ const ABOUT = {
       "We hire people who want to learn by working on real, complex problems – not tutorials. If you join our team, you will be working on live systems used by thousands of people from your first month.",
     ],
   },
-  clientsTitle: "Who We Have Worked With",
   faq: [
     ["When was Kaizen Infotech Solutions Pvt. Ltd. founded?", "Kaizen Infotech Solutions Pvt. Ltd. has been in business for more than 15 years, building enterprise software from Maharashtra, India."],
     ["Who are the clients of Kaizen Infotech Solutions Pvt. Ltd.?", "Our clients include the Income Tax Department of India, Mumbai Port Trust, Rotary International district organisations, JITO, MRPL, and Orion Gametes, among others."],
