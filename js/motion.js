@@ -25,12 +25,13 @@
     [".clients li", "pop", true],
     [".stats__item", "up", true],
     [".work-showcase__intro, .work-showcase__all", "up", false],
-    [".work-card", "wipe", true],
+    [".wi", "left", true],
+    [".work-stage", "zoom", false],
     [".case__media", "wipe", false],
     [".case__body > *", "up", true],
     [".card:not(.hscroll .card)", "rise", true], // the products scroller runs its own entrance (section 5)
     [".feature", "rise", true],
-    [".step", "rise", true],
+    [".step:not(.steps-scroll .step)", "rise", true], // the home process lights up on scroll (js/main.js)
     [".tech__tile", "pop", true],
     [".row-card", "left", true],
     [".faq__item", "up", true],
@@ -97,7 +98,7 @@
 
   var header = document.querySelector(".site-header");
   var heroArt = document.querySelector(".hero-motion__stage"); // inner stage: the outer .hero-motion carries the reveal
-  var workFrames = Array.prototype.slice.call(document.querySelectorAll(".work-card__frame, .case__frame"));
+  var workFrames = Array.prototype.slice.call(document.querySelectorAll(".case__frame"));
   var ticking = false;
   function onScroll() {
     var y = window.scrollY, max = document.documentElement.scrollHeight - window.innerHeight;
@@ -207,18 +208,6 @@
         ? Math.max(w, Math.min(360, window.innerWidth * 0.3, w + (slack * 0.6) / 0.75))
         : Math.max(Math.min(w, window.innerWidth > 760 ? 250 : 220), w + slack / 0.75 - 4); // card height ≈ 0.75 × width + body
       if (Math.abs(fitW - w) > 4) sec.style.setProperty("--hs-w", Math.round(fitW) + "px");
-      // the larger ghost title must break onto the same lines as the bold one;
-      // at a few widths it wraps one line more, so nudge the width a few px
-      var lines = function (el) { return Math.round(el.offsetHeight / (parseFloat(getComputedStyle(el).fontSize) * 1.2)); };
-      var ghostsOk = function () {
-        return Array.prototype.every.call(sec.querySelectorAll(".card__titles"), function (t) {
-          var g = t.querySelector(".card__ghost"), b = t.querySelector(".card__title");
-          return !g || !b || lines(g) === lines(b);
-        });
-      };
-      var base = cards[0].offsetWidth;
-      for (var n = 1; n <= 16 && !ghostsOk(); n++) sec.style.setProperty("--hs-w", base + (n % 2 ? -1 : 1) * 2 * Math.ceil(n / 2) + "px");
-      if (!ghostsOk()) sec.style.setProperty("--hs-w", base + "px");
       // On short screens the block is taller than the space under the header:
       // it then pins a little higher, so the heading tucks under the header
       // while the cards slide. Too short even for that → leave the swipe row.

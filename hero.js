@@ -11,6 +11,9 @@
      icon:<key>   illustrations/icons/<key>.js  (96×96 icon elements)
      person:<badge>:<ring>  illustrations/hero/person.js (team member)
      clients      illustrations/hero/clients.js (client logo wall)
+     photo:<file> assets/team/<file> — a team member: the dots form a
+                  halftone of the photo, then the real photo fades in
+                  inside a ring that draws itself (640×640 square crop)
 
    Captions: title + sub, shown while an element is clear. Names, roles and
    team names marked "Lorem" are placeholders — replace with real content.
@@ -40,10 +43,9 @@ const SETS = {
     E("icon:users", "3 Lakh+ Active Users", "15+ years · 25+ projects"),
   ],
   about: [
-    E("person:chart:light", "Lorem Ipsum", "Founder & CEO"),
-    E("person:code:blue", "Dolor Sit", "Chief Technology Officer"),
-    E("person:pen:light", "Amet Consectetur", "Design Lead"),
-    E("person:check:blue", "Adipiscing Elit", "Project Manager"),
+    E("photo:pranav-rao.jpg", "Pranav Rao", "Director"),
+    E("photo:dhini-sathyaneshan.jpg", "Dhini Sathyaneshan", "HR"),
+    E("photo:mukesh-dhole.jpg", "Mukesh Dhole", "Senior Software Developer"),
     E("icon:gear", "Software That Fits You", "No forced workflows, no generic modules"),
     E("icon:shield", "Government-Grade Code", "Data integrity, audit trails, reliability"),
     E("icon:pin", "Always Reachable", "Based in Maharashtra, serving India"),
@@ -96,11 +98,13 @@ const SETS = {
 
 const r1 = (v) => (typeof v === "number" ? Math.round(v * 10) / 10 : Array.isArray(v) ? v.map(r1) : v);
 
-// Compact JSON for one page: [{f:{w,h}, g:[{c, o, p}], t, s}]
+// Compact JSON for one page: [{f:{w,h}, g:[{c, o, p}], t, s}] — a photo element
+// carries ph (its image path) and no drawing groups
 function heroData(page) {
   const set = SETS[page];
   if (!set) throw new Error(`no hero set for "${page}"`);
   return set.map((e) => {
+    if (e.src.startsWith("photo:")) return { f: IL.FRAME, g: [], ph: `assets/team/${e.src.slice(6)}`, t: e.t, s: e.s };
     const d = load(e.src);
     return {
       f: d.frame || IL.FRAME,

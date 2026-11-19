@@ -342,3 +342,150 @@
       .then(function () { busy(false); if (done.hidden) loadCaptcha(); }); // each code works once
   });
 })();
+
+/* ---- Home "Our Work": project index, driven by scroll ----
+   Wide screens: the index pins under the header and the page scroll walks
+   through the projects one by one (highlighted row + stage photo, counter,
+   progress bar), then lets go. Screens too short to pin, phones, and
+   reduced motion: the project nearest the middle of the screen is
+   highlighted instead. Keyboard focus jumps to that project too. */
+(function () {
+  "use strict";
+  var wrap = document.querySelector("[data-work-scroll]");
+  var box = document.querySelector("[data-work-index]");
+  if (!wrap || !box) return;
+  var rows = Array.prototype.slice.call(box.querySelectorAll(".wi"));
+  var slides = Array.prototype.slice.call(box.querySelectorAll(".ws__slide"));
+  var now = box.querySelector("[data-ws-now]"), barBox = box.querySelector(".ws__bar");
+  var header = document.querySelector(".site-header");
+  var wide = window.matchMedia("(min-width: 961px)");
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var n = rows.length, current = 0, pinned = false, step = 0, pinTop = 0, ticking = false;
+
+  function show(i) {
+    if (i === current) return;
+    rows[current].classList.remove("is-active");
+    rows[i].classList.add("is-active");
+    slides.forEach(function (s) { s.classList.remove("is-prev"); });
+    slides[current].classList.remove("is-active");
+    slides[current].classList.add("is-prev");
+    slides[i].classList.add("is-active");
+    now.textContent = String(i + 1).padStart(2, "0");
+    now.classList.remove("is-tick");
+    void now.offsetWidth; // restart the tick animation
+    now.classList.add("is-tick");
+    current = i;
+  }
+
+  function layout() {
+    pinned = false;
+    wrap.style.height = "";
+    box.classList.remove("is-pinned");
+    box.style.top = "";
+    if (reduce || !wide.matches) return update();
+    var hh = header ? header.offsetHeight : 0, avail = window.innerHeight - hh, h = box.offsetHeight;
+    if (h + 32 > avail) return update(); // too short to pin: follow the middle of the screen
+    step = Math.max(200, Math.round(window.innerHeight * 0.42)); // scroll distance per project
+    pinTop = hh + Math.round((avail - h) / 2);
+    wrap.style.height = h + (n - 1) * step + "px";
+    box.style.top = pinTop + "px";
+    box.classList.add("is-pinned");
+    pinned = true;
+    update();
+  }
+
+  function update() {
+    ticking = false;
+    var p;
+    if (pinned) {
+      p = Math.min(n - 1, Math.max(0, (pinTop - wrap.getBoundingClientRect().top) / step));
+      show(Math.min(n - 1, Math.round(p)));
+      barBox.style.setProperty("--ws-p", ((p + 1) / n) * 100 + "%");
+      return;
+    }
+    var mid = window.innerHeight * 0.5, best = 0, dist = Infinity;
+    rows.forEach(function (row, i) {
+      var r = row.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - mid);
+      if (d < dist) { dist = d; best = i; }
+    });
+    show(best);
+    barBox.style.setProperty("--ws-p", ((best + 1) / n) * 100 + "%");
+  }
+
+  window.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+  var rt;
+  window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(layout, 150); });
+  // keyboard: tabbing onto a project scrolls to its step, so scroll and highlight agree
+  rows.forEach(function (row, i) {
+    row.addEventListener("focusin", function () {
+      if (!pinned) return show(i);
+      var y = window.scrollY + wrap.getBoundingClientRect().top - pinTop + i * step;
+      window.scrollTo({ top: y, behavior: "auto" });
+    });
+  });
+  layout();
+  window.addEventListener("load", layout); // photos and fonts can change the height
+})();
+
+/* ---- Home "How We Work": steps light up on scroll ----
+   Wide screens: the section pins under the header while a line fills
+   along the path and each step lights up as the line reaches it, then
+   the page carries on. Too short to pin / small screens: each step
+   lights up as it reaches the lower middle of the screen.
+   Reduced motion: every step is shown lit, nothing moves. */
+(function () {
+  "use strict";
+  var sec = document.querySelector("[data-steps-scroll]");
+  if (!sec) return;
+  var track = sec.querySelector(".steps-scroll__track"), pin = sec.querySelector(".steps-scroll__pin");
+  var list = sec.querySelector(".steps"), items = Array.prototype.slice.call(list.querySelectorAll(".step"));
+  var header = document.querySelector(".site-header");
+  var wide = window.matchMedia("(min-width: 961px)");
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var n = items.length, pinned = false, dist = 0, top = 0, ticking = false;
+  sec.classList.add("is-scrolly");
+
+  function light(count, p) {
+    items.forEach(function (it, i) {
+      it.classList.toggle("is-on", i < count);
+      it.classList.toggle("is-current", i === count - 1);
+    });
+    list.style.setProperty("--p", p.toFixed(4));
+  }
+  function layout() {
+    pinned = false;
+    track.style.height = "";
+    pin.style.top = "";
+    sec.classList.remove("is-pinned");
+    if (wide.matches) {
+      var hh = header ? header.offsetHeight : 0, avail = window.innerHeight - hh, h = pin.offsetHeight;
+      if (h + 32 <= avail) {
+        dist = Math.round(window.innerHeight * 0.3) * (n - 1); // scroll distance from first step to last
+        top = hh + Math.round((avail - h) / 2);
+        track.style.height = h + dist + "px";
+        pin.style.top = top + "px";
+        sec.classList.add("is-pinned");
+        pinned = true;
+      }
+    }
+    update();
+  }
+  function update() {
+    ticking = false;
+    if (pinned) {
+      var p = Math.min(1, Math.max(0, (top - track.getBoundingClientRect().top) / dist));
+      // step k lights when the line reaches it; the first is lit once the section is in place
+      var count = track.getBoundingClientRect().top <= top + 1 ? Math.min(n, Math.floor(p * (n - 1) + 0.15) + 1) : 0; // lights just as the line arrives
+      light(count, p);
+      return;
+    }
+    var line = window.innerHeight * 0.72, count = 0;
+    items.forEach(function (it, i) { if (it.getBoundingClientRect().top < line) count = i + 1; });
+    light(count, n > 1 ? Math.max(0, count - 1) / (n - 1) : 1);
+  }
+  window.addEventListener("scroll", function () { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+  var rt;
+  window.addEventListener("resize", function () { clearTimeout(rt); rt = setTimeout(layout, 150); });
+  layout();
+  window.addEventListener("load", layout);
+})();

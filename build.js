@@ -464,7 +464,6 @@ function cardIllus(key) {
 // One card. item = { href, title (HTML-safe), illus, desc?, bullets? }
 function card(item, opts = {}) {
   const titles = `<div class="card__titles">
-              <span class="card__ghost" aria-hidden="true">${item.title}</span>
               <h3 class="card__title">${item.title}</h3>
             </div>`;
   // compact: just the element + heading; the whole card links to its page
@@ -586,7 +585,8 @@ ${items}
 }
 
 // Numbered steps (How We Work, our journey). steps = [[icon, title, text], ...]
-function steps(title, items, dark = false) {
+// scroll: the steps light up one by one as the page scrolls (home How We Work, js/main.js)
+function steps(title, items, dark = false, { scroll = false } = {}) {
   const cells = items
     .map(
       ([icon, t, text], i) => `        <li class="step">
@@ -597,12 +597,22 @@ function steps(title, items, dark = false) {
         </li>`
     )
     .join("\n");
+  const list = `<ol class="steps"${items.length !== 5 ? ` style="--steps:${items.length}"` : ""}>
+${cells}
+      </ol>`;
+  if (scroll)
+    return `  <section class="section${dark ? " band-navy" : ""} steps-scroll" data-steps-scroll>
+    <div class="steps-scroll__track">
+    <div class="container steps-scroll__pin" style="max-width:1250px">
+      <h2 class="section-title section-title--center">${esc(title)}</h2>
+      ${list}
+    </div>
+    </div>
+  </section>`;
   return `  <section class="section${dark ? " band-navy" : ""}">
     <div class="container" style="max-width:1250px">
       <h2 class="section-title section-title--center">${esc(title)}</h2>
-      <ol class="steps"${items.length !== 5 ? ` style="--steps:${items.length}"` : ""}>
-${cells}
-      </ol>
+      ${list}
     </div>
   </section>`;
 }
@@ -823,11 +833,11 @@ ${ticker()}
 
 ${cardSection(H.whatWeDo.title, services.map(serviceItem), false, { compact: true, eyebrow: H.whatWeDo.eyebrow, intro: H.whatWeDo.text, button: ["Know More", "services.html"] })}
 
-${workShowcase(PROJECTS.slice(0, 3), { intro: H.work.text, clients: true })}
+${workShowcase(PROJECTS, { intro: H.work.text, clients: true })}
 
 ${cardScroller(H.products.title, products.map(productItem), { compact: true, eyebrow: H.products.eyebrow, intro: H.products.text, button: ["Explore All Products →", "products.html"] })}
 
-${steps("How We Work", H.steps, true)}
+${steps("How We Work", H.steps, true, { scroll: true })}
 
 ${featureGrid(H.why.title, H.why.items, false, { eyebrow: H.why.eyebrow, intro: H.why.text, button: ["Our Story →", "about.html"] })}
 
@@ -979,23 +989,50 @@ ${items}
     </div>
   </section>`;
 }
+// Home "Our Work": an interactive project index. Every project gets its own row
+// (number, name, sector); the big stage beside the list shows the project in
+// focus — photo, summary, what we did. Scrolling walks through the projects:
+// the index pins and each scroll step highlights the next one (js/main.js).
+// Small screens: each row is its own card with its own photo.
 function workShowcase(rows, { intro, clients } = {}) {
-  const cards = rows
+  const total = String(rows.length).padStart(2, "0");
+  const items = rows
     .map(([, title, sub, tag, href], i) => {
       const [img, alt] = WORK_PHOTOS[title];
       const [num, name] = title.split(" · ");
-      return `        <a class="work-card${i === 0 ? " work-card--lead" : ""}" href="${href}">
-          <div class="work-card__frame">
-            <img class="card__photo" src="${img}" alt="${alt}" width="1200" height="675" loading="lazy" decoding="async" />
-          </div>
-          <div class="work-card__shade" aria-hidden="true"></div>
-          <div class="work-card__body">
-            <div class="work-card__meta"><span class="work-card__num">${num.replace("Project ", "")}</span><span class="tag tag--glass">${tag}</span></div>
-            <h3 class="work-card__title">${name}</h3>
-            <p class="work-card__text">${sub}</p>
-            <span class="work-card__cta">View Case Study <span aria-hidden="true">→</span></span>
-          </div>
-        </a>`;
+      const n = num.replace("Project ", "");
+      const chips = WORK_SCOPE[title].map((c) => `<span>${c}</span>`).join("");
+      return `        <li class="wi${i === 0 ? " is-active" : ""}" data-wi="${i}">
+          <a class="wi__link" href="${href}">
+            <span class="wi__num">${n}</span>
+            <span class="wi__main">
+              <span class="wi__head"><span class="wi__name">${name}</span><span class="wi__tag">${tag}</span></span>
+              <span class="wi__more">
+                <span class="wi__photo"><img src="${img}" alt="${alt}" width="1200" height="675" loading="lazy" decoding="async" /></span>
+                <span class="wi__text">${sub}</span>
+                <span class="wi__chips" aria-label="What we did">${chips}</span>
+              </span>
+            </span>
+            <span class="wi__arrow" aria-hidden="true">→</span>
+          </a>
+        </li>`;
+    })
+    .join(String.fromCharCode(10));
+  const slides = rows
+    .map(([, title, sub, tag], i) => {
+      const [img] = WORK_PHOTOS[title];
+      const [, name] = title.split(" · ");
+      const chips = WORK_SCOPE[title].map((c) => `<span>${c}</span>`).join("");
+      return `          <figure class="ws__slide${i === 0 ? " is-active" : ""}" data-ws="${i}">
+            <img src="${img}" alt="" width="1200" height="675" loading="${i === 0 ? "eager" : "lazy"}" decoding="async" />
+            <figcaption class="ws__cap">
+              <span class="ws__tag">${tag}</span>
+              <span class="ws__name">${name}</span>
+              <span class="ws__text">${sub}</span>
+              <span class="ws__chips">${chips}</span>
+              <span class="ws__cta">View Case Study <span aria-hidden="true">→</span></span>
+            </figcaption>
+          </figure>`;
     })
     .join(String.fromCharCode(10));
   return `  <section class="section band-navy work-showcase">
@@ -1007,9 +1044,19 @@ function workShowcase(rows, { intro, clients } = {}) {
         </div>
         <p class="work-showcase__intro">${esc(intro || C.WORK.text)}</p>
         <a class="btn btn--ghost work-showcase__all" href="work.html">View All Work</a>
-      </div>${clients ? `\n      ${clientList("clients--glass")}` : ""}
-      <div class="work-grid">
-${cards}
+      </div>${clients ? `
+      ${clientList("clients--glass")}` : ""}
+      <div class="work-scroll" data-work-scroll>
+      <div class="work-index" data-work-index>
+        <ol class="work-index__list">
+${items}
+        </ol>
+        <div class="work-stage" aria-hidden="true">
+${slides}
+          <div class="ws__count"><span class="ws__now" data-ws-now>01</span><span class="ws__of">/ ${total}</span></div>
+          <div class="ws__bar"><span data-ws-bar></span></div>
+        </div>
+      </div>
       </div>
     </div>
   </section>`;

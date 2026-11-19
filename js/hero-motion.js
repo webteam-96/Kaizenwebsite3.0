@@ -15,7 +15,11 @@
        <p class="hero-motion__cap"><strong></strong><span></span></p>
        <script type="application/json">[elements]</script>
      </div>
-   Elements use the illus.js primitive format.                            */
+   Elements use the illus.js primitive format. A photo element (ph: image
+   path, a team member) is formed differently: the dots assemble into a
+   halftone of the photo in the brand blues (dark areas dense, the white
+   background left empty), then CLEAR fades the real photo in inside a
+   circle while a ring draws itself around it.                            */
 (function () {
   "use strict";
   var roots = document.querySelectorAll("[data-hero-motion]");
@@ -76,8 +80,40 @@
   function rng(seed) { return function () { seed |= 0; seed = (seed + 0x6d2b79f5) | 0; var t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   function pick(list, r) { return list[Math.floor(r() * list.length)]; }
 
+  /* ------------- team photo → halftone dot targets + ring ------------- */
+  var PHOTO_N = 2100, PH_R = 222, PH_SP = 8.2; // dot budget, portrait radius, dot pitch
+  function preparePhoto(def, idx) {
+    var cx = W / 2, cy = H / 2, ring = new Path2D();
+    ring.arc(cx, cy, PH_R + 7, -Math.PI / 2, Math.PI * 1.5);
+    return { photo: def.ph, img: null, cx: cx, cy: cy, R: PH_R, seed: idx * 7919 + 17, targets: [],
+      strokes: [{ path: ring, len: 2 * Math.PI * (PH_R + 7), col: RGB.blue }], s: 1, ox: 0, oy: 0, t: def.t, sub: def.s };
+  }
+  // read the photo's brightness on a hex grid inside the circle: darker → deeper blue;
+  // near-white (the backdrop) gets no dot, so the person's silhouette forms
+  function samplePhoto(e, img, max) {
+    var size = Math.round(2 * e.R), c = document.createElement("canvas");
+    c.width = c.height = size;
+    var g = c.getContext("2d");
+    g.drawImage(img, 0, 0, size, size);
+    var d = g.getImageData(0, 0, size, size).data, r = rng(e.seed), pts = [], lim = (e.R - 3) * (e.R - 3);
+    for (var row = 0, y = PH_SP / 2; y < size; y += PH_SP * 0.866, row++) {
+      for (var x = row % 2 ? PH_SP : PH_SP / 2; x < size; x += PH_SP) {
+        var dx = x - e.R, dy = y - e.R;
+        if (dx * dx + dy * dy > lim) continue;
+        var i = ((y | 0) * size + (x | 0)) * 4, L = (0.2126 * d[i] + 0.7152 * d[i + 1] + 0.0722 * d[i + 2]) / 255;
+        if (L > 0.86) continue;
+        var col = L < 0.2 ? "navy" : L < 0.4 ? "blue" : L < 0.62 ? "light" : "rose";
+        var px = e.cx - e.R + x, py = e.cy - e.R + y;
+        pts.push({ cx: px, cy: py, x: px + (r() - 0.5) * 1.6, y: py + (r() - 0.5) * 1.6, col: RGB[col] });
+      }
+    }
+    for (var j = pts.length - 1; j > 0; j--) { var q = Math.floor(r() * (j + 1)), tmp = pts[j]; pts[j] = pts[q]; pts[q] = tmp; }
+    e.targets = pts.slice(0, max);
+  }
+
   /* ------------- element → particle targets + clear strokes ------------- */
   function prepare(def, idx) {
+    if (def.ph) return preparePhoto(def, idx);
     var s = Math.min((W - 2 * PAD) / def.f.w, (H - 2 * PAD) / def.f.h);
     var ox = (W - def.f.w * s) / 2, oy = (H - def.f.h * s) / 2, r = rng(idx * 7919 + 17);
     var lines = [], total = 0;
@@ -136,7 +172,7 @@
     var capT = cap.querySelector("strong"), capS = cap.querySelector("span");
     var defs = JSON.parse(json.textContent);
     var els = defs.map(prepare);
-    var N = 0; els.forEach(function (e) { N = Math.max(N, e.targets.length); });
+    var N = 0; els.forEach(function (e) { N = Math.max(N, e.photo ? PHOTO_N : e.targets.length); });
     var R = rng(4242), ps = [];
 
     function cloud() {
@@ -166,7 +202,7 @@
           else { p.tx = p.x + (R() - 0.5) * 40; p.ty = p.y + (R() - 0.5) * 40; p.c1 = p.col; p.a1 = 0; }
         } else if (kind === "clr") {
           if (p.tg) { p.tx = p.tg.cx; p.ty = p.tg.cy; } else { p.tx = p.x; p.ty = p.y; }
-          p.c1 = p.col; p.a1 = p.tg ? 0.1 : 0; // a faint dot texture under the clear drawing
+          p.c1 = p.col; p.a1 = p.tg && !e.photo ? 0.1 : 0; // a faint dot texture under the clear drawing (photos: dots give way to the photo)
         } else { // dis
           var c = cloud(); p.tx = c[0]; p.ty = c[1]; p.c1 = p.col; p.a1 = p.tg ? 1 : 0.55;
         }
@@ -178,6 +214,17 @@
       if (ph === 2) { retarget("clr"); caption(true); }
       if (ph === 4) { retarget("dis"); caption(false); }
     }
+    // team photos: load, then sample into dots; if that photo is already assembling, steer the dots to it
+    els.forEach(function (e, i) {
+      if (!e.photo) return;
+      var im = new Image();
+      im.onload = function () {
+        try { samplePhoto(e, im, N); } catch (err) { return; } // unreadable image: the element shows as a ring only
+        e.img = im;
+        if (i === k && phase <= 1) retarget("asm");
+      };
+      im.src = e.photo;
+    });
 
     function resize() {
       var rect = canvas.getBoundingClientRect();
@@ -216,6 +263,15 @@
       var draw = phase === 2 ? clamp01((lt - B) / T_CLR) : phase === 3 ? 1 : phase === 4 ? 1 : 0;
       var alpha = phase === 2 ? clamp01((lt - B) / (T_CLR * 0.6)) : phase === 3 ? 1 : phase === 4 ? 1 - clamp01((lt - D) / 0.35) : 0;
       if (alpha > 0.01) {
+        if (e.img) { // photo: fades in inside the circle, settling from a slight zoom
+          var z = 1 + 0.06 * (1 - ease(draw)), sz = 2 * e.R * z;
+          ctx.setTransform(size, 0, 0, size, 0, 0);
+          ctx.save();
+          ctx.beginPath(); ctx.arc(e.cx, e.cy, e.R, 0, 6.2832); ctx.clip();
+          ctx.globalAlpha = alpha;
+          ctx.drawImage(e.img, e.cx - sz / 2, e.cy - sz / 2, sz, sz);
+          ctx.restore();
+        }
         ctx.setTransform(size * e.s, 0, 0, size * e.s, size * e.ox, size * e.oy);
         ctx.lineWidth = CLEAR_W / e.s; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.globalAlpha = alpha;
         var q = ease(draw);
@@ -233,6 +289,13 @@
     function drawStill(alpha) {
       var e = els[k];
       ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (e.img) {
+        ctx.setTransform(size, 0, 0, size, 0, 0);
+        ctx.save(); ctx.globalAlpha = alpha;
+        ctx.beginPath(); ctx.arc(e.cx, e.cy, e.R, 0, 6.2832); ctx.clip();
+        ctx.drawImage(e.img, e.cx - e.R, e.cy - e.R, 2 * e.R, 2 * e.R);
+        ctx.restore();
+      }
       ctx.setTransform(size * e.s, 0, 0, size * e.s, size * e.ox, size * e.oy);
       ctx.lineWidth = CLEAR_W / e.s; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.globalAlpha = alpha;
       e.strokes.forEach(function (st) { ctx.strokeStyle = "rgb(" + st.col.join(",") + ")"; ctx.stroke(st.path); });
